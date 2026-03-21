@@ -3408,43 +3408,43 @@ function toggleAria(){
 var ARIA_KB = {
   'score': {
     q: ['score','composite','how does','priority','weighted','formula'],
-    a: 'The <strong>Composite Score</strong> = (Intent &times; 0.4) + (Engagement &times; 0.3) + (ICP Fit &times; 0.3). Intent is sourced from Bombora + G2 topic spikes. Engagement tracks email opens, web visits, and LinkedIn activity. ICP Fit is calculated against your ideal customer profile firmographics. Scores update every 24 hours. <a onclick=\"nav(\'hot\')\">View all scored accounts &rarr;</a>'
+    a: 'ScalientIQ&rsquo;s <strong>Composite Score</strong> combines three dimensions &mdash; intent signals, engagement activity, and ICP fit &mdash; to surface your highest-priority accounts automatically. Each account is scored in real time so your team always knows exactly who to contact first. <a onclick=\"nav(\'hot\')\">View priority accounts &rarr;</a>'
   },
   'romify': {
     q: ['romify','top account'],
-    a: '<strong>Romify</strong> is your highest-priority account right now with a composite score of 89.3. Active signals: Bombora intent spike on &ldquo;revenue intelligence&rdquo;, 2 LinkedIn job postings for RevOps roles, and a web visit to your pricing page 3 days ago. Recommended action: book a meeting within 72 hours. <a onclick="openPanel(0)">Open Romify profile &rarr;</a>'
+    a: '<strong>Romify</strong> is currently your highest-priority account. Multiple active buying signals have been detected across channels this week. Recommended action: reach out within 72 hours while intent is peaked. <a onclick="openPanel(0)">Open Romify profile &rarr;</a>'
   },
   'germany': {
     q: ['germany','german','de','gdpr','europe','european','eu','compliance','legal','what not to say'],
-    a: '<strong>Germany (DE) Compliance Rules:</strong><br>&bull; Cold email to individuals requires prior consent or proven business relationship (UWG &sect;7)<br>&bull; Never mention &ldquo;I noticed you visited our site&rdquo; &mdash; tracking disclosure required<br>&bull; Subject lines must be factual, not sensational<br>&bull; Use company email addresses, not personal Gmail/Hotmail targets<br>&bull; Bombora intent data is account-level only &mdash; never reference individual behavior<br>&bull; Include an unsubscribe link in every email (DSGVO)<br><a onclick=\"setLang(\'de\',\'&#127465;&#127466;\',\'DE\',null);toggleLangDropdown()\">Enable German compliance mode &rarr;</a>'
+    a: '<strong>Germany (DE) Compliance Mode:</strong><br>&bull; Cold outreach requires a proven business relationship or legitimate interest<br>&bull; Avoid referencing website visit tracking in messaging<br>&bull; Subject lines must be factual and non-sensational<br>&bull; Target business email addresses only<br>&bull; Every email must include a clear unsubscribe option<br>SiQ Cortex automatically adapts your sequences and signal descriptions when German compliance mode is active. <a onclick=\"setLang(\'de\',\'&#127465;&#127466;\',\'DE\',null);toggleLangDropdown()\">Enable German compliance mode &rarr;</a>'
   },
   'france': {
     q: ['france','french','fr','cnil','paris'],
-    a: '<strong>France (FR) Compliance Rules:</strong><br>&bull; Cold B2B email is permitted if recipient is likely interested by professional context<br>&bull; CNIL requires opt-out in every communication<br>&bull; Cannot reference browsing data without consent disclosure<br>&bull; Sequences must include sender company full legal name<br>&bull; Avoid urgency language in French (&ldquo;Act now&rdquo; &#8594; &ldquo;D&eacute;couvrez comment&rdquo;)'
+    a: '<strong>France (FR) Compliance Mode:</strong><br>&bull; Cold B2B outreach is permitted when there is a professional context<br>&bull; Every communication must include an opt-out option<br>&bull; Browsing data cannot be referenced without consent disclosure<br>&bull; Sequences must include your full company legal name<br>&bull; Adapt urgency language to a softer, consultative tone<br>SiQ Cortex automatically adjusts your templates when French compliance mode is active.'
   },
   'signals': {
     q: ['signal','today','act','action','priority today','what should'],
-    a: 'Based on current data, your top 3 actions today are:<br>1. <strong>Romify</strong> &mdash; Bombora intent spike + LinkedIn activity. Book meeting now. <a onclick="openPanel(0)">Open &rarr;</a><br>2. <strong>Axon Health</strong> &mdash; 2nd pricing page visit this week. Send ROI case. <a onclick="openPanel(1)">Open &rarr;</a><br>3. <strong>BuilderStack</strong> &mdash; New RevOps hire posted. Add to AISDR sequence. <a onclick=\"nav(\'aisdr\')\">AISDR &rarr;</a>'
+    a: 'Based on current signal activity, your top 3 actions today are:<br>1. <strong>Romify</strong> &mdash; Multiple high-intent signals detected. Reach out now. <a onclick="openPanel(0)">Open &rarr;</a><br>2. <strong>Axon Health</strong> &mdash; Repeat high-value page visits this week. Send ROI case. <a onclick="openPanel(1)">Open &rarr;</a><br>3. <strong>BuilderStack</strong> &mdash; New revenue role posted. Strong buying signal. <a onclick=\"nav(\'aisdr\')\">Add to sequence &rarr;</a>'
   },
   'roi': {
     q: ['roi','calculator','return on investment','open roi'],
-    a: 'Opening the ROI Calculator for you now &mdash; use this live with prospects to anchor value before price comes up. Your current model shows a 3.8&times; projected ROI at moderate scenario. <a onclick=\"nav(\'roi\')\">Go to ROI Calculator &rarr;</a>',
+    a: 'Opening the ROI Calculator &mdash; use this live with prospects to anchor value before price comes up. Build the business case in real time using their own numbers. <a onclick=\"nav(\'roi\')\">Go to ROI Calculator &rarr;</a>',
     action: function(){ setTimeout(function(){ nav('roi'); }, 800); }
   },
   'aisdr': {
     q: ['aisdr','sequence','outreach','email','automated','sdr'],
-    a: 'The <strong>AISDR Engine</strong> has 4 sequences active and 1 hot reply waiting. 3 accounts are in the signal queue ready to launch. Average open rate is 53%. <a onclick=\"nav(\'aisdr\')\">Open AISDR &rarr;</a>'
+    a: 'The <strong>AI SDR Engine</strong> is actively running sequences across your priority accounts. Hot replies are waiting for review and new accounts are queued for launch. <a onclick=\"nav(\'aisdr\')\">Open AI SDR Engine &rarr;</a>'
   },
   'pipeline': {
     q: ['pipeline','deal','forecast','revenue','$421'],
-    a: 'Current pipeline: <strong>$421K</strong> total, $213K weighted, $89K projected to close this quarter. Win rate is 34%. Biggest risk: Romify and Axon Health are in &ldquo;Meeting Booked&rdquo; stage &mdash; if either goes dark that&rsquo;s ~$80K slipping. <a onclick=\"nav(\'pipeline\')\">Full Pipeline view &rarr;</a>'
+    a: 'Your current pipeline stands at <strong>$421K</strong> with deals at multiple stages. ScalientIQ tracks engagement signals across every open deal so you know which ones need attention before they go cold. <a onclick=\"nav(\'pipeline\')\">Full pipeline view &rarr;</a>'
   },
   'languages': {
     q: ['language','translate','french','german','dutch','multilingual','european'],
-    a: 'SiQ Cortex supports <strong>5 languages</strong>: English (US), English (UK), Deutsch, Fran&ccedil;ais, and Nederlands. Select any EU language and GDPR Compliance Mode activates automatically &mdash; this adapts sequence templates, signal descriptions, and the &ldquo;What Not to Say&rdquo; knowledge base for that country&rsquo;s regulations. Use the language selector in the top bar to switch.'
+    a: 'SiQ Cortex supports <strong>5 languages</strong>: English (US), English (UK), Deutsch, Fran&ccedil;ais, and Nederlands. Selecting an EU language automatically activates Compliance Mode &mdash; adapting your sequence templates and messaging guidelines to meet that country&rsquo;s outreach regulations. Use the language selector in the top bar to switch.'
   },
   'default': {
-    a: 'Great question! I&rsquo;m still learning every corner of your pipeline data. For now, I can best help with: scoring explanations, account signals, navigation, GDPR compliance rules by country, AISDR sequences, and ROI modeling. Try one of the quick chips below, or ask me anything about a specific account by name.'
+    a: 'I&rsquo;m ARIA &mdash; your AI Revenue Intelligence Assistant. I can help you understand account scores, surface today&rsquo;s priority actions, navigate the platform, or walk you through compliance rules for any market. Try one of the quick chips below or ask me about a specific account.'
   }
 };
 function ariaMatchKB(q){
