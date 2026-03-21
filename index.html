@@ -3408,7 +3408,7 @@ function toggleAria(){
 var ARIA_KB = {
   'score': {
     q: ['score','composite','how does','priority','weighted','formula'],
-    a: 'The <strong>Composite Score</strong> = (Intent &times; 0.4) + (Engagement &times; 0.3) + (ICP Fit &times; 0.3). Intent is sourced from Bombora + G2 topic spikes. Engagement tracks email opens, web visits, and LinkedIn activity. ICP Fit is calculated against your ideal customer profile firmographics. Scores update every 24 hours. <a onclick="nav('hot')">View all scored accounts &rarr;</a>'
+    a: 'The <strong>Composite Score</strong> = (Intent &times; 0.4) + (Engagement &times; 0.3) + (ICP Fit &times; 0.3). Intent is sourced from Bombora + G2 topic spikes. Engagement tracks email opens, web visits, and LinkedIn activity. ICP Fit is calculated against your ideal customer profile firmographics. Scores update every 24 hours. <a onclick=\"nav(\'hot\')\">View all scored accounts &rarr;</a>'
   },
   'romify': {
     q: ['romify','top account'],
@@ -3416,7 +3416,7 @@ var ARIA_KB = {
   },
   'germany': {
     q: ['germany','german','de','gdpr','europe','european','eu','compliance','legal','what not to say'],
-    a: '<strong>Germany (DE) Compliance Rules:</strong><br>&bull; Cold email to individuals requires prior consent or proven business relationship (UWG &sect;7)<br>&bull; Never mention &ldquo;I noticed you visited our site&rdquo; &mdash; tracking disclosure required<br>&bull; Subject lines must be factual, not sensational<br>&bull; Use company email addresses, not personal Gmail/Hotmail targets<br>&bull; Bombora intent data is account-level only &mdash; never reference individual behavior<br>&bull; Include an unsubscribe link in every email (DSGVO)<br><a onclick="setLang('de','&#127465;&#127466;','DE',null);toggleLangDropdown()">Enable German compliance mode &rarr;</a>'
+    a: '<strong>Germany (DE) Compliance Rules:</strong><br>&bull; Cold email to individuals requires prior consent or proven business relationship (UWG &sect;7)<br>&bull; Never mention &ldquo;I noticed you visited our site&rdquo; &mdash; tracking disclosure required<br>&bull; Subject lines must be factual, not sensational<br>&bull; Use company email addresses, not personal Gmail/Hotmail targets<br>&bull; Bombora intent data is account-level only &mdash; never reference individual behavior<br>&bull; Include an unsubscribe link in every email (DSGVO)<br><a onclick=\"setLang(\'de\',\'&#127465;&#127466;\',\'DE\',null);toggleLangDropdown()\">Enable German compliance mode &rarr;</a>'
   },
   'france': {
     q: ['france','french','fr','cnil','paris'],
@@ -3424,20 +3424,20 @@ var ARIA_KB = {
   },
   'signals': {
     q: ['signal','today','act','action','priority today','what should'],
-    a: 'Based on current data, your top 3 actions today are:<br>1. <strong>Romify</strong> &mdash; Bombora intent spike + LinkedIn activity. Book meeting now. <a onclick="openPanel(0)">Open &rarr;</a><br>2. <strong>Axon Health</strong> &mdash; 2nd pricing page visit this week. Send ROI case. <a onclick="openPanel(1)">Open &rarr;</a><br>3. <strong>BuilderStack</strong> &mdash; New RevOps hire posted. Add to AISDR sequence. <a onclick="nav('aisdr')">AISDR &rarr;</a>'
+    a: 'Based on current data, your top 3 actions today are:<br>1. <strong>Romify</strong> &mdash; Bombora intent spike + LinkedIn activity. Book meeting now. <a onclick="openPanel(0)">Open &rarr;</a><br>2. <strong>Axon Health</strong> &mdash; 2nd pricing page visit this week. Send ROI case. <a onclick="openPanel(1)">Open &rarr;</a><br>3. <strong>BuilderStack</strong> &mdash; New RevOps hire posted. Add to AISDR sequence. <a onclick=\"nav(\'aisdr\')\">AISDR &rarr;</a>'
   },
   'roi': {
     q: ['roi','calculator','return on investment','open roi'],
-    a: 'Opening the ROI Calculator for you now &mdash; use this live with prospects to anchor value before price comes up. Your current model shows a 3.8&times; projected ROI at moderate scenario. <a onclick="nav('roi')">Go to ROI Calculator &rarr;</a>',
+    a: 'Opening the ROI Calculator for you now &mdash; use this live with prospects to anchor value before price comes up. Your current model shows a 3.8&times; projected ROI at moderate scenario. <a onclick=\"nav(\'roi\')\">Go to ROI Calculator &rarr;</a>',
     action: function(){ setTimeout(function(){ nav('roi'); }, 800); }
   },
   'aisdr': {
     q: ['aisdr','sequence','outreach','email','automated','sdr'],
-    a: 'The <strong>AISDR Engine</strong> has 4 sequences active and 1 hot reply waiting. 3 accounts are in the signal queue ready to launch. Average open rate is 53%. <a onclick="nav('aisdr')">Open AISDR &rarr;</a>'
+    a: 'The <strong>AISDR Engine</strong> has 4 sequences active and 1 hot reply waiting. 3 accounts are in the signal queue ready to launch. Average open rate is 53%. <a onclick=\"nav(\'aisdr\')\">Open AISDR &rarr;</a>'
   },
   'pipeline': {
     q: ['pipeline','deal','forecast','revenue','$421'],
-    a: 'Current pipeline: <strong>$421K</strong> total, $213K weighted, $89K projected to close this quarter. Win rate is 34%. Biggest risk: Romify and Axon Health are in &ldquo;Meeting Booked&rdquo; stage &mdash; if either goes dark that&rsquo;s ~$80K slipping. <a onclick="nav('pipeline')">Full Pipeline view &rarr;</a>'
+    a: 'Current pipeline: <strong>$421K</strong> total, $213K weighted, $89K projected to close this quarter. Win rate is 34%. Biggest risk: Romify and Axon Health are in &ldquo;Meeting Booked&rdquo; stage &mdash; if either goes dark that&rsquo;s ~$80K slipping. <a onclick=\"nav(\'pipeline\')\">Full Pipeline view &rarr;</a>'
   },
   'languages': {
     q: ['language','translate','french','german','dutch','multilingual','european'],
