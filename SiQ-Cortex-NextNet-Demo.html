@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scalient IQ — GTM Signal Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;display:flex;height:100vh;overflow:hidden;background:#f1f5f9;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:256px;min-width:256px;background:#0f172a;display:flex;flex-direction:column;height:100vh;z-index:10;}
+.sidebar-logo{padding:20px 16px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.logo-icon{width:34px;height:34px;background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.logo-text{color:white;font-size:17px;font-weight:700;letter-spacing:-0.3px;}
+.sidebar-nav{flex:1;padding:12px 8px;display:flex;flex-direction:column;gap:2px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;color:rgba(255,255,255,0.55);font-size:14px;font-weight:500;transition:all 0.15s;user-select:none;}
+.nav-item:hover{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.85);}
+.nav-item.active{background:#1e3a8a;color:white;}
+.nav-item svg{width:18px;height:18px;flex-shrink:0;}
+.nav-chevron{margin-left:auto;width:14px;height:14px;opacity:0.4;}
+.sidebar-footer{padding:16px;border-top:1px solid rgba(255,255,255,0.06);}
+.cv-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:rgba(255,255,255,0.3);margin-bottom:6px;}
+.cv-val{display:flex;align-items:center;gap:6px;font-size:13px;color:rgba(255,255,255,0.65);font-weight:500;}
+.dot-green{width:7px;height:7px;background:#22c55e;border-radius:50%;}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+
+/* ── TOPBAR ── */
+.topbar{height:58px;background:white;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;padding:0 24px;gap:16px;flex-shrink:0;z-index:5;}
+.tb-brand{display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px;color:#111827;padding:6px 10px;border:1px solid #e5e7eb;border-radius:8px;cursor:pointer;}
+.brand-icon{width:22px;height:22px;background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:5px;display:flex;align-items:center;justify-content:center;}
+.tb-search{flex:1;max-width:380px;position:relative;}
+.tb-search input{width:100%;padding:8px 12px 8px 36px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;color:#6b7280;background:#f9fafb;outline:none;}
+.tb-si{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#9ca3af;}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.demo-badge{border:1.5px solid #f97316;color:#ea580c;font-size:11px;font-weight:700;letter-spacing:0.6px;padding:4px 12px;border-radius:6px;}
+.tb-icon{width:34px;height:34px;border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#6b7280;}
+.tb-icon:hover{background:#f3f4f6;}
+.tb-user{display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 6px;border-radius:8px;}
+.tb-user:hover{background:#f3f4f6;}
+.ui{text-align:right;}.un{font-size:13px;font-weight:600;color:#111827;}.ur{font-size:11px;color:#9ca3af;}
+.avatar{width:32px;height:32px;background:linear-gradient(135deg,#2563eb,#7c3aed);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;}
+
+/* ── CONTENT ── */
+.content{flex:1;overflow-y:auto;padding:24px;transition:filter 0.25s;}
+.content.blurred{filter:blur(3px);pointer-events:none;}
+.page{display:none;}.page.active{display:block;}
+
+/* ── METRIC CARDS ── */
+.metrics-row{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:20px;}
+.mc{background:white;border-radius:12px;padding:16px 18px;border:1px solid #f1f5f9;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
+.mc.mc-live{border-color:#bfdbfe;background:linear-gradient(135deg,#eff6ff,white);}
+.mc-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
+.ic-blue{background:#eff6ff;}.ic-indigo{background:#eef2ff;}.ic-amber{background:#fffbeb;}.ic-green{background:#f0fdf4;}.ic-purple{background:#f5f3ff;}.ic-teal{background:#ccfbf1;}
+.mc-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#9ca3af;margin-bottom:4px;}
+.mc-value{font-size:26px;font-weight:800;color:#0f172a;}
+.mc-live .mc-value{color:#1d4ed8;}
+.mc-live-badge{display:flex;align-items:center;gap:3px;font-size:9px;font-weight:700;color:#15803d;margin-bottom:4px;letter-spacing:0.3px;}
+.live-dot{width:5px;height:5px;background:#22c55e;border-radius:50%;animation:livepulse 1.5s infinite;}
+@keyframes livepulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+@keyframes metric-flash{0%{background:#dbeafe;transform:scale(1.05);}100%{background:inherit;transform:scale(1);}}
+.metric-flash{animation:metric-flash 0.6s ease-out;}
+
+/* ── AI BANNER ── */
+.ai-banner{background:linear-gradient(135deg,#1d4ed8 0%,#4f46e5 50%,#7c3aed 100%);border-radius:12px;padding:20px 24px;display:flex;align-items:center;gap:16px;margin-bottom:20px;overflow:hidden;position:relative;}
+.ai-banner::after{content:'AI';position:absolute;right:80px;font-size:130px;font-weight:900;color:rgba(255,255,255,0.05);pointer-events:none;line-height:1;}
+.aib-icon{width:42px;height:42px;background:rgba(255,255,255,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.aib-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.6);margin-bottom:4px;}
+.aib-text{font-size:14px;color:white;line-height:1.5;flex:1;}
+.aib-btn{background:white;color:#1d4ed8;font-size:13px;font-weight:700;padding:9px 18px;border-radius:8px;border:none;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+
+/* ── CHARTS ── */
+.charts-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px;}
+.chart-card{background:white;border-radius:12px;padding:20px;border:1px solid #f1f5f9;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
+.chart-title{font-size:14px;font-weight:700;color:#111827;margin-bottom:14px;}
+.chart-wrap{position:relative;height:175px;}
+.bottom-row{display:grid;grid-template-columns:1fr 1.6fr;gap:14px;}
+.donut-card,.priority-card{background:white;border-radius:12px;padding:20px;border:1px solid #f1f5f9;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
+.donut-wrap{position:relative;height:185px;}
+.donut-legend{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:10px;}
+.li{display:flex;align-items:center;gap:5px;font-size:12px;color:#6b7280;}
+.ld{width:9px;height:9px;border-radius:50%;}
+.ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.ph-title{font-size:14px;font-weight:700;color:#111827;}
+.va{font-size:13px;font-weight:600;color:#2563eb;cursor:pointer;}
+.pt{width:100%;border-collapse:collapse;font-size:13px;}
+.pt th{padding:8px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:#9ca3af;border-bottom:1px solid #f1f5f9;}
+.pt td{padding:11px 10px;border-bottom:1px solid #f9fafb;vertical-align:middle;}
+.pt tbody tr:last-child td{border-bottom:none;}
+.pt tbody tr{cursor:pointer;}.pt tbody tr:hover{background:#f8fafc;}
+
+/* ── SCORE BADGES ── */
+.sb{display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:24px;padding:0 7px;border-radius:5px;font-size:12px;font-weight:800;}
+.sg{background:#dcfce7;color:#14532d;}.sa{background:#fef9c3;color:#713f12;}.sr{background:#fee2e2;color:#7f1d1d;}.so{background:#ffedd5;color:#7c2d12;}
+/* TAG PILLS */
+.tag{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;}
+.tb-{background:#dbeafe;color:#1e40af;}.tp{background:#ede9fe;color:#4c1d95;}.tg{background:#dcfce7;color:#14532d;}.tam{background:#fef9c3;color:#713f12;}.trd{background:#fee2e2;color:#7f1d1d;}.tt{background:#ccfbf1;color:#065f46;}.tgr{background:#f1f5f9;color:#475569;}
+/* ── WEB INTENT (Leadpipe) ── */
+.wi{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;}
+.wi-high{background:#dcfce7;color:#14532d;border:1px solid #bbf7d0;}
+.wi-medium{background:#fef9c3;color:#713f12;border:1px solid #fde68a;}
+.wi-low{background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe;}
+.wi-none{background:#f1f5f9;color:#9ca3af;border:1px solid #e2e8f0;}
+.lp-badge{display:inline-flex;align-items:center;gap:5px;background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;font-size:10px;font-weight:700;padding:3px 9px;border-radius:5px;letter-spacing:0.4px;}
+.lp-source-tag{display:inline-flex;align-items:center;gap:4px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;}
+/* Digital Footprint panel section */
+.df-card{background:#f8fafc;border-radius:10px;border:1px solid #e5e7eb;overflow:hidden;margin-bottom:14px;}
+.df-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid #e5e7eb;background:white;}
+.df-header-title{font-size:13px;font-weight:700;color:#111827;display:flex;align-items:center;gap:7px;}
+.df-body{padding:12px 14px;display:flex;flex-direction:column;gap:8px;}
+.df-row{display:flex;justify-content:space-between;align-items:center;}
+.df-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:#9ca3af;}
+.df-val{font-size:13px;color:#374151;font-weight:500;}
+.page-pill{display:inline-flex;align-items:center;padding:3px 9px;border-radius:5px;font-size:11px;font-weight:600;margin:2px 2px 2px 0;}
+.pp-solutions{background:#dcfce7;color:#14532d;}
+.pp-pricing{background:#fef9c3;color:#713f12;}
+.pp-casestudies{background:#ede9fe;color:#4c1d95;}
+.pp-home{background:#f1f5f9;color:#475569;}
+.pp-other{background:#dbeafe;color:#1e40af;}
+.df-insight{background:#eff6ff;border-radius:7px;padding:9px 12px;font-size:12px;color:#1e40af;line-height:1.5;border-left:3px solid #2563eb;}
+/* Website Visitors card on dashboard */
+.wv-card{background:white;border-radius:12px;padding:20px;border:1px solid #f1f5f9;box-shadow:0 1px 3px rgba(0,0,0,0.06);margin-top:14px;}
+.wv-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.wv-hdr-left{display:flex;align-items:center;gap:10px;}
+.wv-title{font-size:14px;font-weight:700;color:#111827;}
+.wv-sub{font-size:12px;color:#9ca3af;margin-top:2px;}
+.wv-table{width:100%;border-collapse:collapse;font-size:13px;}
+.wv-table th{padding:8px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:#9ca3af;border-bottom:1px solid #f1f5f9;}
+.wv-table td{padding:12px 12px;border-bottom:1px solid #f9fafb;vertical-align:middle;}
+.wv-table tbody tr:last-child td{border-bottom:none;}
+.wv-table tbody tr:hover{background:#f8fafc;}
+.wv-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0;}
+.add-crm-btn{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;font-size:11px;font-weight:700;padding:5px 10px;border-radius:6px;cursor:pointer;white-space:nowrap;}
+.add-crm-btn:hover{background:#dcfce7;}
+.lp-open-btn{background:white;border:1px solid #e5e7eb;color:#374151;font-size:12px;font-weight:600;padding:7px 14px;border-radius:7px;cursor:pointer;display:flex;align-items:center;gap:5px;}
+.lp-open-btn:hover{background:#f9fafb;}
+
+/* ── FULL-PAGE TABLES ── */
+.page-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;}
+.page-title{font-size:22px;font-weight:800;color:#0f172a;}
+.page-sub{font-size:13px;color:#6b7280;margin-top:3px;}
+.page-controls{display:flex;gap:10px;align-items:center;}
+.sb-box{display:flex;align-items:center;gap:8px;background:white;border:1px solid #e5e7eb;border-radius:8px;padding:7px 12px;}
+.sb-box input{border:none;outline:none;font-size:13px;color:#374151;width:210px;}
+.fl-sel{background:white;border:1px solid #e5e7eb;border-radius:8px;padding:8px 12px;font-size:13px;color:#374151;cursor:pointer;outline:none;}
+.fl-btn{background:white;border:1px solid #e5e7eb;border-radius:8px;padding:8px 12px;font-size:13px;color:#374151;cursor:pointer;display:flex;align-items:center;gap:6px;}
+.table-card{background:white;border-radius:12px;border:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,0.05);overflow:hidden;}
+.dt{width:100%;border-collapse:collapse;font-size:13px;}
+.dt th{padding:11px 16px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#9ca3af;background:#f9fafb;border-bottom:1px solid #f1f5f9;}
+.dt td{padding:14px 16px;border-bottom:1px solid #f9fafb;vertical-align:middle;}
+.dt tbody tr:last-child td{border-bottom:none;}
+.dt tbody tr{cursor:pointer;transition:background 0.1s;}.dt tbody tr:hover{background:#f8fafc;}
+.cn{font-weight:700;color:#111827;}.ct{font-size:11px;color:#9ca3af;margin-top:1px;}
+.nac{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#374151;}
+.nai{width:22px;height:22px;border-radius:6px;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.tdot{background:none;border:none;cursor:pointer;color:#9ca3af;font-size:18px;padding:2px 6px;border-radius:4px;}
+.tdot:hover{background:#f3f4f6;}
+.create-btn{background:#2563eb;color:white;font-size:13px;font-weight:700;padding:9px 18px;border-radius:8px;border:none;cursor:pointer;}
+
+/* ── PLAYS PAGE ── */
+.plays-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.play-card{background:white;border-radius:12px;border:1px solid #e5e7eb;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,0.05);transition:box-shadow 0.2s;}
+.play-card:hover{box-shadow:0 4px 14px rgba(0,0,0,0.08);}
+.pc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
+.pc-icon{width:42px;height:42px;background:#eff6ff;border-radius:10px;display:flex;align-items:center;justify-content:center;}
+.active-badge{background:#f0fdf4;color:#15803d;font-size:11px;font-weight:700;letter-spacing:0.4px;padding:4px 10px;border-radius:6px;}
+.pc-title{font-size:16px;font-weight:700;color:#0f172a;margin-bottom:4px;}
+.pc-desc{font-size:13px;color:#64748b;margin-bottom:14px;line-height:1.45;}
+.pm-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#9ca3af;margin-bottom:4px;}
+.pm-val{font-size:13px;color:#374151;margin-bottom:10px;}
+.pp{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.psnip{background:#f8fafc;border-radius:8px;padding:10px 12px;font-size:12px;color:#475569;font-style:italic;line-height:1.5;margin-bottom:12px;border-left:3px solid #e2e8f0;}
+.pc-foot{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid #f1f5f9;}
+.pgoal{font-size:12px;color:#374151;}
+.ep{font-size:13px;font-weight:700;color:#2563eb;cursor:pointer;}
+
+/* ── SIDE PANEL ── */
+.panel-backdrop{display:none;position:fixed;inset:0;z-index:90;}
+.side-panel{position:fixed;top:0;right:-500px;width:480px;height:100vh;background:white;box-shadow:-4px 0 30px rgba(0,0,0,0.12);z-index:100;overflow-y:auto;transition:right 0.3s cubic-bezier(0.4,0,0.2,1);}
+.side-panel.open{right:0;}
+.sp-close{position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:7px;background:#f3f4f6;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#6b7280;font-size:18px;z-index:1;}
+.sp-close:hover{background:#e5e7eb;}
+.sp-body{padding:24px;}
+.sp-top{display:flex;align-items:center;gap:14px;margin-bottom:20px;padding-right:40px;}
+.sp-avatar{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:white;flex-shrink:0;}
+.sp-name{font-size:20px;font-weight:800;color:#0f172a;}
+.sp-sub{font-size:13px;color:#6b7280;margin-top:2px;}
+.sp-company{color:#2563eb;font-weight:600;}
+.score-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;}
+.score-box{background:#f8fafc;border-radius:10px;padding:14px 16px;border:1px solid #e5e7eb;}
+.score-box-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#9ca3af;margin-bottom:6px;}
+.score-box-val{display:flex;align-items:center;gap:10px;}
+.score-box-big{font-size:28px;font-weight:800;color:#0f172a;}
+.ai-insight-tag{display:inline-flex;align-items:center;gap:4px;background:#eff6ff;color:#2563eb;font-size:10px;font-weight:700;letter-spacing:0.4px;padding:3px 8px;border-radius:5px;text-transform:uppercase;}
+.sp-section{margin-bottom:18px;}
+.sp-section-title{font-size:13px;font-weight:700;color:#111827;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.signal-quote{background:#f8fafc;border-radius:8px;padding:12px 14px;font-size:13px;color:#374151;font-style:italic;line-height:1.5;border-left:3px solid #e2e8f0;}
+.why-list{display:flex;flex-direction:column;gap:7px;}
+.why-item{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#374151;line-height:1.45;}
+.why-dot{width:6px;height:6px;min-width:6px;background:#2563eb;border-radius:50%;margin-top:6px;}
+.contact-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f8fafc;border-radius:8px;cursor:pointer;transition:background 0.1s;margin-bottom:6px;border:1px solid #e5e7eb;}
+.contact-mini:hover{background:#eff6ff;border-color:#bfdbfe;}
+.cm-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0;}
+.cm-name{font-size:13px;font-weight:700;color:#111827;}
+.cm-title{font-size:11px;color:#9ca3af;}
+.cm-score{margin-left:auto;font-size:12px;font-weight:800;}
+.cm-score-label{font-size:10px;color:#9ca3af;text-align:right;}
+.sp-outreach-btn{width:100%;background:#2563eb;color:white;font-size:14px;font-weight:700;padding:13px;border-radius:10px;border:none;cursor:pointer;margin-top:8px;transition:background 0.15s;}
+.sp-outreach-btn:hover{background:#1d4ed8;}
+/* Interaction history */
+.ih-item{display:flex;gap:12px;padding-bottom:14px;position:relative;}
+.ih-item:not(:last-child)::after{content:'';position:absolute;left:11px;top:24px;bottom:0;width:1px;background:#e5e7eb;}
+.ih-icon{width:24px;height:24px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;flex-shrink:0;z-index:1;}
+.ih-content{flex:1;}
+.ih-head{display:flex;justify-content:space-between;align-items:center;}
+.ih-type{font-size:13px;font-weight:700;color:#111827;}
+.ih-date{font-size:11px;color:#9ca3af;}
+.ih-desc{font-size:12px;color:#6b7280;margin-top:2px;}
+.ih-status{display:inline-block;margin-top:5px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;}
+.ih-opened{background:#dcfce7;color:#14532d;}.ih-replied{background:#dbeafe;color:#1e40af;}.ih-accepted{background:#dcfce7;color:#14532d;}.ih-completed{background:#f5f3ff;color:#5b21b6;}.ih-noresp{background:#fee2e2;color:#7f1d1d;}.ih-pending{background:#fef9c3;color:#713f12;}.ih-open{background:#ffedd5;color:#7c2d12;}
+/* Email template */
+.email-box{background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:14px;}
+.email-box-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid #e5e7eb;background:white;}
+.email-hdr-left{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:#111827;}
+.seq-badge{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:0.4px;}
+.email-field{padding:10px 14px;}
+.email-field-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:#9ca3af;margin-bottom:3px;}
+.email-field-val{font-size:13px;color:#111827;font-weight:600;}
+.email-body-val{font-size:13px;color:#374151;line-height:1.6;white-space:pre-line;}
+.email-divider{height:1px;background:#f1f5f9;margin:0 14px;}
+/* Action buttons */
+.action-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.ab{display:flex;align-items:center;justify-content:center;gap:6px;padding:11px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all 0.15s;}
+.ab-pending{background:#fffbeb;color:#92400e;border:1px solid #fde68a;}
+.ab-pending:hover{background:#fef3c7;}
+.ab-book{background:#2563eb;color:white;}
+.ab-book:hover{background:#1d4ed8;}
+.ab-replied{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;}
+.ab-replied:hover{background:#dcfce7;}
+.ab-noresp{background:#f9fafb;color:#6b7280;border:1px solid #e5e7eb;}
+.ab-noresp:hover{background:#f3f4f6;}
+
+/* ── OUTREACH MODAL ── */
+.modal-bd{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;align-items:center;justify-content:center;}
+.modal-bd.open{display:flex;}
+.modal-box{background:white;border-radius:16px;width:92%;max-width:520px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,0.2);}
+.modal-title{font-size:18px;font-weight:800;color:#0f172a;margin-bottom:4px;}
+.modal-sub{font-size:13px;color:#6b7280;margin-bottom:20px;}
+.modal-sub a{color:#2563eb;font-weight:600;text-decoration:none;}
+.modal-section{background:#f8fafc;border-radius:8px;padding:12px 14px;margin-bottom:12px;border:1px solid #e5e7eb;}
+.modal-section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#9ca3af;margin-bottom:5px;}
+.modal-section-val{font-size:14px;font-weight:700;color:#111827;}
+.modal-ai-box{background:#f8fafc;border-radius:8px;padding:14px;margin-bottom:20px;border:1px solid #e5e7eb;min-height:80px;}
+.modal-ai-text{font-size:13px;color:#374151;line-height:1.65;font-style:italic;}
+.modal-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.modal-btn-send{background:#2563eb;color:white;font-size:14px;font-weight:700;padding:13px;border-radius:9px;border:none;cursor:pointer;}
+.modal-btn-send:hover{background:#1d4ed8;}
+.modal-btn-cancel{background:white;color:#374151;font-size:14px;font-weight:600;padding:13px;border-radius:9px;border:1.5px solid #e5e7eb;cursor:pointer;}
+.modal-btn-cancel:hover{background:#f9fafb;}
+
+/* ── THINKING ANIMATION ── */
+@keyframes blink{0%,100%{opacity:0.3;}50%{opacity:1;}}
+.thinking{display:flex;align-items:center;gap:5px;padding:10px 0;}
+.td-label{font-size:12px;color:#9ca3af;font-style:italic;}
+.tdot-ani{width:6px;height:6px;background:#9ca3af;border-radius:50%;animation:blink 1.2s infinite;}
+.tdot-ani:nth-child(3){animation-delay:0.2s;}
+.tdot-ani:nth-child(4){animation-delay:0.4s;}
+/* Typing cursor */
+@keyframes cursor{0%,100%{opacity:1;}50%{opacity:0;}}
+.cursor{display:inline-block;width:2px;height:14px;background:#374151;margin-left:1px;vertical-align:middle;animation:cursor 0.8s infinite;}
+
+/* ── PORTFOLIO COPILOT ── */
+.copilot-wrap{position:fixed;bottom:24px;right:24px;z-index:150;display:flex;flex-direction:column;align-items:flex-end;gap:12px;}
+.copilot-panel{background:white;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,0.15);width:340px;overflow:hidden;display:none;flex-direction:column;}
+.copilot-panel.open{display:flex;}
+.cp-header{background:#2563eb;padding:14px 16px;display:flex;align-items:center;gap:10px;}
+.cp-hicon{width:32px;height:32px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cp-htitle{font-size:14px;font-weight:700;color:white;flex:1;}
+.cp-active{display:flex;align-items:center;gap:4px;font-size:10px;color:rgba(255,255,255,0.8);font-weight:600;}
+.cp-active-dot{width:6px;height:6px;background:#4ade80;border-radius:50%;}
+.cp-hbtns{display:flex;gap:6px;}
+.cp-hbtn{width:26px;height:26px;background:rgba(255,255,255,0.15);border-radius:6px;border:none;cursor:pointer;color:white;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.cp-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;max-height:300px;min-height:200px;}
+.cp-msg{max-width:88%;padding:10px 12px;border-radius:10px;font-size:13px;line-height:1.5;}
+.cp-msg-ai{background:#f1f5f9;color:#374151;align-self:flex-start;border-radius:10px 10px 10px 2px;}
+.cp-msg-user{background:#2563eb;color:white;align-self:flex-end;border-radius:10px 10px 2px 10px;}
+.cp-input-row{padding:10px 12px;border-top:1px solid #f1f5f9;display:flex;gap:8px;align-items:center;}
+.cp-input{flex:1;border:1px solid #e5e7eb;border-radius:8px;padding:8px 12px;font-size:13px;outline:none;}
+.cp-input:focus{border-color:#2563eb;}
+.cp-send{width:34px;height:34px;background:#2563eb;border-radius:8px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.cp-powered{text-align:center;font-size:10px;color:#9ca3af;padding:4px 0 8px;background:white;}
+.cp-start-btn{background:#2563eb;color:white;font-size:13px;font-weight:700;padding:12px;border:none;cursor:pointer;font-family:inherit;}
+.cp-start-btn:hover{background:#1d4ed8;}
+.copilot-bubble{width:52px;height:52px;background:#2563eb;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(37,99,235,0.4);transition:transform 0.2s;}
+.copilot-bubble:hover{transform:scale(1.08);}
+
+/* ── ACTION BADGE IN PRIORITY TABLE ── */
+.act-btn{background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:700;padding:5px 12px;border-radius:6px;border:none;cursor:pointer;}
+.act-btn:hover{background:#dbeafe;}
+
+/* ── FEATURE PAGES SHARED ── */
+.fp-header{margin-bottom:24px;}
+.fp-title{font-size:22px;font-weight:800;color:#0f172a;}
+.fp-sub{font-size:13px;color:#6b7280;margin-top:3px;}
+.fp-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:0.4px;padding:3px 10px;border-radius:5px;margin-left:10px;vertical-align:middle;}
+.fp-badge-new{background:#ede9fe;color:#5b21b6;}
+.fp-badge-live{background:#dcfce7;color:#14532d;}
+.fp-grid{display:grid;gap:16px;}
+.fp-grid-2{grid-template-columns:1fr 1fr;}
+.fp-grid-3{grid-template-columns:1fr 1fr 1fr;}
+.fp-card{background:white;border-radius:12px;border:1px solid #e5e7eb;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,0.05);}
+.fp-card-title{font-size:14px;font-weight:700;color:#111827;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.fp-card-sub{font-size:12px;color:#6b7280;margin-bottom:14px;line-height:1.5;}
+.fp-section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#9ca3af;margin-bottom:8px;}
+
+/* ── CRM SYNC PAGE ── */
+.crm-conn-row{display:flex;gap:16px;margin-bottom:20px;}
+.crm-conn-card{flex:1;background:white;border-radius:12px;border:1px solid #e5e7eb;padding:18px;display:flex;align-items:center;gap:14px;}
+.crm-logo{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.crm-hs{background:#fff4ee;}.crm-sf{background:#e8f0fe;}
+.crm-status-on{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:#15803d;background:#dcfce7;padding:4px 10px;border-radius:6px;margin-left:auto;}
+.crm-status-off{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:#6b7280;background:#f1f5f9;padding:4px 10px;border-radius:6px;margin-left:auto;cursor:pointer;}
+.crm-status-on-dot{width:7px;height:7px;background:#22c55e;border-radius:50%;}
+.sync-feed{display:flex;flex-direction:column;gap:0;}
+.sync-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f9fafb;}
+.sync-item:last-child{border-bottom:none;}
+.sync-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.si-green{background:#dcfce7;}.si-blue{background:#dbeafe;}.si-purple{background:#ede9fe;}.si-amber{background:#fef9c3;}.si-red{background:#fee2e2;}
+.sync-detail{flex:1;}
+.sync-what{font-size:13px;font-weight:600;color:#111827;}
+.sync-who{font-size:11px;color:#6b7280;margin-top:1px;}
+.sync-time{font-size:11px;color:#9ca3af;margin-left:auto;white-space:nowrap;}
+.sync-crm-tag{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;}
+.tag-hs{background:#fff4ee;color:#c05621;}.tag-sf{background:#e8f0fe;color:#1a56db;}
+.sync-toggle-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #f9fafb;}
+.sync-toggle-row:last-child{border-bottom:none;}
+.sync-toggle-label{font-size:13px;font-weight:600;color:#111827;}
+.sync-toggle-sub{font-size:11px;color:#6b7280;margin-top:1px;}
+.toggle{position:relative;display:inline-block;width:36px;height:20px;flex-shrink:0;}
+.toggle input{opacity:0;width:0;height:0;}
+.slider{position:absolute;cursor:pointer;inset:0;background:#e5e7eb;border-radius:20px;transition:0.2s;}
+.slider::before{content:'';position:absolute;height:14px;width:14px;left:3px;bottom:3px;background:white;border-radius:50%;transition:0.2s;}
+input:checked+.slider{background:#2563eb;}
+input:checked+.slider::before{transform:translateX(16px);}
+
+/* ── REP TASKS PAGE ── */
+.rep-progress-bar{background:#f1f5f9;border-radius:20px;height:10px;overflow:hidden;margin-bottom:6px;}
+.rep-progress-fill{background:linear-gradient(90deg,#2563eb,#7c3aed);border-radius:20px;height:100%;transition:width 0.4s;}
+.task-group{margin-bottom:20px;}
+.task-group-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#9ca3af;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.task-item{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:white;border-radius:10px;border:1px solid #e5e7eb;margin-bottom:8px;cursor:pointer;transition:box-shadow 0.15s;}
+.task-item:hover{box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+.task-item.done{opacity:0.5;}
+.task-check{width:20px;height:20px;border-radius:6px;border:2px solid #d1d5db;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;cursor:pointer;transition:all 0.15s;}
+.task-check.checked{background:#2563eb;border-color:#2563eb;color:white;}
+.task-priority{font-size:10px;font-weight:800;padding:2px 7px;border-radius:4px;letter-spacing:0.4px;flex-shrink:0;}
+.tp-high{background:#fee2e2;color:#7f1d1d;}.tp-med{background:#fef9c3;color:#713f12;}.tp-low{background:#f1f5f9;color:#475569;}
+.task-body{flex:1;}
+.task-title{font-size:13px;font-weight:700;color:#111827;margin-bottom:3px;}
+.task-desc{font-size:12px;color:#6b7280;line-height:1.4;}
+.task-meta{display:flex;align-items:center;gap:8px;margin-top:6px;}
+.task-due{font-size:11px;font-weight:600;color:#9ca3af;}
+.task-acct{font-size:11px;color:#2563eb;font-weight:600;}
+.task-action-btn{background:#2563eb;color:white;font-size:12px;font-weight:700;padding:6px 12px;border-radius:7px;border:none;cursor:pointer;flex-shrink:0;margin-top:2px;}
+
+/* ── KNOWLEDGE BASE PAGE ── */
+.kb-rule-card{background:white;border-radius:10px;border:1px solid #e5e7eb;padding:16px;margin-bottom:10px;}
+.kb-rule-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.kb-rule-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.kbi-red{background:#fee2e2;}.kbi-green{background:#dcfce7;}.kbi-blue{background:#dbeafe;}.kbi-amber{background:#fef9c3;}
+.kb-rule-title{font-size:14px;font-weight:700;color:#111827;}
+.kb-rule-sub{font-size:11px;color:#6b7280;margin-top:1px;}
+.kb-pills{display:flex;flex-wrap:wrap;gap:6px;}
+.kb-pill-red{background:#fee2e2;color:#7f1d1d;border:1px solid #fecaca;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;}
+.kb-pill-green{background:#dcfce7;color:#14532d;border:1px solid #bbf7d0;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;}
+.kb-pill-blue{background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;}
+.kb-tone-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f9fafb;}
+.kb-tone-row:last-child{border-bottom:none;}
+.kb-tone-label{font-size:13px;font-weight:600;color:#111827;}
+.kb-tone-sub{font-size:11px;color:#9ca3af;margin-top:1px;}
+.tone-slider{-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;background:linear-gradient(90deg,#2563eb 60%,#e5e7eb 60%);outline:none;cursor:pointer;width:160px;}
+.tone-slider::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#2563eb;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.2);}
+.kb-add-btn{background:#f8fafc;border:1.5px dashed #d1d5db;color:#6b7280;font-size:12px;font-weight:600;padding:8px 14px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:5px;margin-top:8px;}
+.kb-add-btn:hover{background:#f1f5f9;border-color:#94a3b8;}
+
+/* ── ICP PAGE ── */
+.icp-step{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:10px;background:white;border:1px solid #e5e7eb;margin-bottom:8px;}
+.icp-step-num{width:28px;height:28px;border-radius:50%;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.icp-step-num.done{background:#dcfce7;color:#14532d;}
+.icp-step-title{font-size:13px;font-weight:700;color:#111827;}
+.icp-step-sub{font-size:11px;color:#6b7280;margin-top:1px;}
+.icp-step-status{margin-left:auto;font-size:11px;font-weight:700;padding:3px 8px;border-radius:5px;}
+.icp-done{background:#dcfce7;color:#14532d;}.icp-active{background:#dbeafe;color:#1e40af;}.icp-pending{background:#f1f5f9;color:#9ca3af;}
+.icp-field-row{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+.icp-field-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:#9ca3af;}
+.icp-field-val{font-size:13px;color:#111827;font-weight:500;background:#f8fafc;border:1px solid #e5e7eb;border-radius:7px;padding:9px 12px;}
+.icp-persona-card{background:white;border-radius:10px;border:1px solid #e5e7eb;padding:14px;display:flex;gap:12px;}
+.icp-persona-av{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.icp-save-btn{background:#2563eb;color:white;font-size:13px;font-weight:700;padding:10px 20px;border-radius:8px;border:none;cursor:pointer;}
+
+/* ── COACHING PAGE ── */
+.coach-call-card{background:white;border-radius:12px;border:1px solid #e5e7eb;padding:18px;margin-bottom:12px;}
+.ccc-top{display:flex;align-items:flex-start;gap:14px;margin-bottom:14px;}
+.ccc-av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:white;flex-shrink:0;}
+.ccc-name{font-size:15px;font-weight:700;color:#0f172a;}
+.ccc-meta{font-size:12px;color:#9ca3af;margin-top:2px;}
+.ccc-score{margin-left:auto;text-align:right;}
+.ccc-score-val{font-size:26px;font-weight:800;color:#0f172a;}
+.ccc-score-label{font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.4px;}
+.coach-section{margin-bottom:12px;}
+.coach-section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:#9ca3af;margin-bottom:6px;}
+.coach-item{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#374151;padding:6px 0;line-height:1.4;}
+.coach-dot-green{width:7px;height:7px;background:#22c55e;border-radius:50%;margin-top:5px;flex-shrink:0;}
+.coach-dot-amber{width:7px;height:7px;background:#f59e0b;border-radius:50%;margin-top:5px;flex-shrink:0;}
+.coach-dot-blue{width:7px;height:7px;background:#3b82f6;border-radius:50%;margin-top:5px;flex-shrink:0;}
+.crm-push-btn{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;font-size:12px;font-weight:700;padding:7px 14px;border-radius:7px;cursor:pointer;}
+.crm-push-btn:hover{background:#dcfce7;}
+.coach-overall{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+.coach-stat{background:white;border-radius:10px;border:1px solid #e5e7eb;padding:14px;text-align:center;}
+.coach-stat-val{font-size:22px;font-weight:800;color:#0f172a;margin-bottom:2px;}
+.coach-stat-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:#9ca3af;}
+</style>
+</head>
+<body>
+
+<!-- ================================================================
+     ✏️  EDIT THIS SECTION TO CUSTOMIZE FOR EACH DEMO
+     ================================================================ -->
+<script>
+const DEMO_CLIENT  = "Next Net";
+const DEMO_DATE    = "March 23, 2026";
+const DEMO_PERSONA = { name:"Marty Berman", role:"GTM Lead", initials:"MB" };
+const AI_INSIGHT   = "Prioritize aggressive expansion in the AI / Technology vertical with Cascade AI (91) and TrueRoute (88) while immediately triaging FlowStack AI to mitigate critical churn risk. Vertex Capital represents a high-value multi-brand GTM program opportunity — engage now.";
+
+// ── ACCOUNTS ─────────────────────────────────────────────────
+const ACCOUNTS = [
+  {
+    name:"TrueRoute", employees:"250–500", acv:"$25–$50M", industry:"AI / Technology",
+    signalStrength:88, nrrRisk:13,
+    expansionSignal:"GTM Intelligence Expansion", lastSalesTouch:"2026-02-10", salesOwner:"Account Exec - East",
+    color:"#2563eb",
+    webIntent:{ level:"Medium", pages:["/solutions","/home","/home"], sessions:3, lastSeen:"2026-03-20", source:"Direct", keySignal:"Visited /solutions page + 2 homepage returns in 7 days — evaluating actively" },
+    signalQuote:'"New VP Sales hired in last 60 days; GTM intelligence adoption surging across sales team; NRR expansion mandate from board"',
+    whyFlagged:["High signal recency with VP Sales persona increases likelihood of conversion.","Expansion signal detected in GTM intelligence adoption pipeline."],
+    recommendedPlay:"VP Sales Strategic Value Story",
+    aiMessage:"Congratulations on your first 60 days as VP Sales at TrueRoute. With the board\'s current focus on NRR expansion, getting your team executing consistently on signal-driven outreach is critical. We specialize in helping revenue leaders prescribe the exact play, channel, and message for every account signal — so ramp time drops and rep consistency goes up. I\'d love to share how we\'re helping AI-focused companies like TrueRoute shorten their sales cycles. Open to a brief exchange?"
+  },
+  {
+    name:"Signal Labs", employees:"100–250", acv:"$10–$25M", industry:"B2B SaaS",
+    signalStrength:77, nrrRisk:42,
+    expansionSignal:"Seat Expansion Signal", lastSalesTouch:"2026-02-12", salesOwner:"Account Exec - SMB 1",
+    color:"#7c3aed",
+    webIntent:{ level:"High", pages:["/pricing","/solutions","/pricing","/solutions"], sessions:5, lastSeen:"2026-03-21", source:"Direct", keySignal:"Visited /pricing 2× + /solutions 2× in 5 sessions — active pricing research, ready for sales conversation" },
+    signalQuote:'"Power users hitting seat limits; VP RevOps opened pricing email 3×; GTM stack upgrade inquiry submitted"',
+    whyFlagged:["PLG expansion signal — power users hitting limits signals readiness to upgrade.","VP RevOps pricing email engagement confirms budget conversation is active."],
+    recommendedPlay:"Usage Cap → Expansion Conversation",
+    aiMessage:"Hi Sam, I noticed your team has been pushing up against usage limits — which is a great problem to have. It means Signal Labs is getting real value from the platform.\n\nI\'d love to show you what a full GTM intelligence tier would unlock for your workflow. It\'s a natural next step given how your team is already using it.\n\nDo you have 20 minutes this week to walk through it?"
+  },
+  {
+    name:"Meridian GTM", employees:"50–100", acv:"$5–$10M", industry:"B2B SaaS",
+    signalStrength:80, nrrRisk:31,
+    expansionSignal:"Revenue Intelligence", lastSalesTouch:"2026-02-25", salesOwner:"Account Exec - East",
+    color:"#0891b2",
+    webIntent:{ level:"Low", pages:["/home"], sessions:1, lastSeen:"2026-03-17", source:"Direct", keySignal:"Single homepage visit — early awareness, not yet researching solutions" },
+    signalQuote:'"New Head of RevOps hired; team registered for GTM intelligence webinar; CRO asking about pipeline visibility timelines"',
+    whyFlagged:["New RevOps hire + webinar registration signals active GTM evaluation in progress.","CRO pipeline inquiry confirms budget cycle alignment."],
+    recommendedPlay:"Revenue Intelligence Fast Track",
+    aiMessage:"Hi Casey, I saw that Meridian GTM recently brought on a new Head of RevOps and your team registered for our GTM intelligence webinar. Companies that align their signal layer early typically see 40% faster pipeline velocity.\n\nI\'d love to share a quick roadmap tailored to your timeline. Would a 20-minute call work this week?"
+  },
+  {
+    name:"Vertex Capital", employees:"100–250", acv:"$10–$25M", industry:"Professional Services",
+    signalStrength:70, nrrRisk:53,
+    expansionSignal:"Multi-Brand GTM Program", lastSalesTouch:"2026-02-03", salesOwner:"Partner Lead - PE",
+    color:"#059669",
+    webIntent:{ level:"None", pages:[], sessions:0, lastSeen:null, source:null, keySignal:"No website activity detected — digital outreach not yet initiated" },
+    signalQuote:'"Portfolio companies requesting GTM intelligence framework; Operating Partner driving expansion ops; multi-brand rollout discussion initiated"',
+    whyFlagged:["Portfolio-level inquiry signals high-value multi-brand GTM opportunity.","Operating Partner engagement at C-level confirms strategic buying authority."],
+    recommendedPlay:"Portfolio / Multi-Brand Expansion Play",
+    aiMessage:"Hi Alex, given our existing relationship, I think several of your portfolio companies could benefit from the same GTM signal framework we\'ve been building together.\n\nA single program deployed across 3–4 portfolio companies significantly reduces overhead while creating a consistent revenue execution playbook. Would it be worth a brief conversation about a portfolio-wide approach?"
+  },
+  {
+    name:"Prism Revenue", employees:"250–500", acv:"$25–$50M", industry:"AI / Analytics",
+    signalStrength:85, nrrRisk:17,
+    expansionSignal:"AI Sales Intelligence", lastSalesTouch:"2026-02-14", salesOwner:"Account Exec - Strategic 1",
+    color:"#dc2626",
+    webIntent:{ level:"High", pages:["/solutions","/pricing","/solutions","/case-studies"], sessions:4, lastSeen:"2026-03-22", source:"Direct", keySignal:"Visited /solutions + /pricing + /case-studies in 4 sessions over 5 days — active vendor evaluation underway" },
+    signalQuote:'"Revenue team headcount +4 in 60 days; CRO engaged with AI sales intelligence content; board-level NRR story opened"',
+    whyFlagged:["Revenue team expansion signals active GTM investment budget.","AI-focused content engagement aligns perfectly with Prism\'s core analytics profile."],
+    recommendedPlay:"AI Sales Intelligence Bridge",
+    aiMessage:"Hi Jordan, Prism Revenue\'s aggressive GTM team build-out caught my attention — and your engagement with our AI sales intelligence content tells me you\'re thinking about this strategically, not just as a tooling decision.\n\nWe\'re working with several AI-native analytics companies on exactly this challenge. I\'d love to share what\'s working. Open to a 15-minute call?"
+  },
+  {
+    name:"FlowStack AI", employees:"50–100", acv:"$5–$10M", industry:"SaaS",
+    signalStrength:51, nrrRisk:80,
+    expansionSignal:"Implementation Issues", lastSalesTouch:"2026-02-05", salesOwner:"Account Exec - SMB 2",
+    color:"#ea580c",
+    webIntent:{ level:"Low", pages:["/home"], sessions:1, lastSeen:"2026-03-13", source:"Direct", keySignal:"Single homepage visit only — low digital engagement, internal issues likely consuming attention" },
+    signalQuote:'"Onboarding users stalled 3+ weeks; VP CS flagged adoption delays; CTO requesting renewal concession"',
+    whyFlagged:["Onboarding stall + adoption flag = active churn risk requiring immediate intervention.","CTO renewal concession request signals dissatisfaction at budget authority level — escalate now."],
+    recommendedPlay:"Churn Save — Onboarding Rescue",
+    aiMessage:"Hi Quinn, I wanted to reach out personally because I saw some signals that concerned me. If there are onboarding challenges slowing your team down, I want to make sure we fix that — not just talk about it.\n\nCan we schedule 30 minutes this week with your implementation lead and our team to diagnose exactly what\'s happening and build a recovery plan together?"
+  },
+  {
+    name:"Cascade AI", employees:"500–1,000", acv:"$50M+", industry:"AI / Technology",
+    signalStrength:91, nrrRisk:11,
+    expansionSignal:"AI Agent Deployment", lastSalesTouch:"2026-02-16", salesOwner:"Account Exec - Strategic 2",
+    color:"#7c3aed",
+    webIntent:{ level:"High", pages:["/solutions","/pricing","/case-studies","/solutions","/pricing"], sessions:6, lastSeen:"2026-03-22", source:"Direct", keySignal:"6 sessions in 8 days — /pricing visited 2×, /case-studies visited — new CRO in active vendor evaluation, highest urgency" },
+    signalQuote:'"New CRO evaluating AI agent deployment partners; active pilot scope submitted; 500–1,000 employee strategic account"',
+    whyFlagged:["Active pilot scope + new CRO in role = highest-priority expansion window in current portfolio.","500–1,000 employee AI-native scale means significant multi-year contract value if engaged correctly now."],
+    recommendedPlay:"CRO Onboarding + Multi-Year Pilot Pitch",
+    aiMessage:"Congratulations on the new role at Cascade AI, Jordan. I understand you\'re evaluating AI agent deployment partners for a potential multi-year GTM program — we\'d love to be part of that conversation.\n\nWe\'ve helped several organizations your size build scalable GTM signal layers that grow with the company rather than creating recurring friction. I\'d love to share a framework tailored to Cascade AI. Are you open to a 30-minute working session?"
+  },
+];
+
+// ── WEBSITE VISITORS (from Leadpipe) ──────────────────────────
+// Real-time identified visitors NOT yet in your CRM
+// ✏️ Update this from your Leadpipe dashboard (Export CSV or manual)
+const WEBSITE_VISITORS = [
+  { name:"Marcus Chen", company:"TechScale AI", title:"VP Revenue", intentLevel:"High", pages:["/pricing","/solutions","/case-studies"], sessions:4, lastSeen:"2026-03-22", avatar:"MC", avatarColor:"#dc2626", inCRM:false, notes:"Pricing + solutions + case studies — active buying research" },
+  { name:"Priya Sharma", company:"FusionStack", title:"Head of RevOps", intentLevel:"Medium", pages:["/solutions","/home"], sessions:2, lastSeen:"2026-03-21", avatar:"PS", avatarColor:"#7c3aed", inCRM:false, notes:"Solutions page research — evaluating for team-wide rollout" },
+  { name:"Unknown Visitor", company:"Unknown", title:"Unknown", intentLevel:"Low", pages:["/home"], sessions:1, lastSeen:"2026-03-20", avatar:"??", avatarColor:"#6b7280", inCRM:false, notes:"Email-identified visitor — early awareness stage" },
+  { name:"Alex Torres", company:"Buildwave", title:"Director of Sales", intentLevel:"Medium", pages:["/solutions","/pricing"], sessions:2, lastSeen:"2026-03-19", avatar:"AT", avatarColor:"#0891b2", inCRM:false, notes:"Solutions + pricing review — potential expansion evaluation" },
+  { name:"Chris Ward", company:"Stackify AI", title:"CEO", intentLevel:"High", pages:["/pricing","/solutions","/pricing"], sessions:3, lastSeen:"2026-03-22", avatar:"CW", avatarColor:"#059669", inCRM:false, notes:"CEO visiting /pricing 2× in 3 sessions — high commercial intent" },
+];
+
+// ── CONTACTS ─────────────────────────────────────────────────
+const CONTACTS = [
+  {
+    name:"Franklin Rios", title:"CEO", account:"Next Net", persona:"Economic Buyer",
+    signalScore:94, engagement:86, nextAction:"Sequence", outcome:"Meeting Booked",
+    whyScores:["CEO driving portfolio-wide GTM initiative — highest authority and broadest organizational impact.","Engagement with AI agent and portfolio intelligence content confirms active strategic evaluation.","Signal score (94/100) reflects C-level Economic Buyer with confirmed budget authority across 8 brands."],
+    history:[{type:"Email",date:"2026-02-05",desc:"Sent intro email regarding portfolio GTM signal program.",status:"Opened"},{type:"Meeting",date:"2026-03-10",desc:"Discovery call completed — 45 min, very engaged.",status:"Completed"}],
+    emailSubject:"SiQ Cortex for Next Net — Portfolio GTM Infrastructure",
+    emailBody:"Hi Franklin,\n\nFollowing our discovery call, I want to sharpen the frame around what Cortex means for Next Net specifically.\n\nOne signal schema across all 8 brands creates a portfolio-wide GTM data layer that compounds with every closed/won cycle. The moat isn\'t the software — it\'s the outcome data that trains Cortex on what actually works in your specific markets.\n\nI\'d love to walk through the Phase 1 pilot scope and what a 30-day proof-of-concept looks like for your anchor brand.\n\nBest,\nMarty Berman"
+  },
+  {
+    name:"Tristan Harris", title:"SVP Marketing", account:"Next Net", persona:"Champion",
+    signalScore:88, engagement:80, nextAction:"Call", outcome:"Meeting Booked",
+    whyScores:["Champion who requested the Signal Matrix deep-dive — signals active internal evaluation.","SVP Marketing engagement confirms cross-functional influence on the GTM buying decision.","Email and content engagement over 30-day window shows consistent and sustained intent."],
+    history:[{type:"Email",date:"2026-02-20",desc:"Requested Signal Matrix documentation.",status:"Replied"},{type:"Meeting",date:"2026-03-12",desc:"Signal Matrix walkthrough call — 30 min.",status:"Completed"}],
+    emailSubject:"Signal Matrix Deep Dive — Next Steps for Next Net",
+    emailBody:"Hi Tristan,\n\nFollowing our walkthrough, I\'ve put together the full (ICP × Signal × Persona) → prescribed outreach pattern framework we discussed.\n\nThe AI Search angle you raised is exactly where Phase 2 goes — Cortex can incorporate AI crawl data and organic intent as first-class signal types. I\'d love to discuss how that maps to your \'The Crawl\' thesis.\n\nHappy to walk through Phase 1 output for one brand in 30 days — no commitment, just results.\n\nBest,\nMarty Berman"
+  },
+  {
+    name:"Matt Harrison", title:"SVP Product", account:"Next Net", persona:"Technical Buyer",
+    signalScore:83, engagement:75, nextAction:"Call", outcome:"Replied",
+    whyScores:["Technical Buyer with SQL background — evaluates product depth and architecture before committing.","Requested demo of the Airtable + n8n + HubSpot stack confirms he\'s assessing operability.","Engagement of 75 reflects active awareness — right timing for architecture walkthrough."],
+    history:[{type:"Email",date:"2026-02-25",desc:"Requested architecture overview of Airtable + n8n stack.",status:"Replied"},{type:"Meeting",date:"2026-03-15",desc:"Technical deep-dive — 45 min.",status:"Completed"}],
+    emailSubject:"Next Net Architecture Walkthrough — Phase 1 Stack",
+    emailBody:"Hi Matt,\n\nGreat session last week — I\'ve put together the data model walkthrough you asked for.\n\nPhase 1 is built on Airtable + n8n + HubSpot — tools your team can operate today. The core objects (accounts, contacts, signals, campaigns, activities) map directly to HubSpot\'s standard schema. No migration, no new vendor.\n\nMulti-brand = one Airtable base per brand with a shared signal schema. Your SQL background means you can query it directly.\n\nWant to do a 30-minute live walkthrough of the actual data model?\n\nBest,\nMarty Berman"
+  },
+  {
+    name:"Jordan Lee", title:"CRO", account:"Cascade AI", persona:"Economic Buyer",
+    signalScore:91, engagement:83, nextAction:"Sequence", outcome:"Meeting Booked",
+    whyScores:["New CRO in role <45 days — critical window for establishing strategic GTM infrastructure.","Engagement with AI agent deployment content indicates active vendor evaluation for Q2 rollout.","Signal score (91/100) confirms immediate budget authority at C-level for multi-year program."],
+    history:[{type:"Email",date:"2026-02-12",desc:"Sent intro email referencing new CRO transition.",status:"Opened"},{type:"Meeting",date:"2026-02-20",desc:"Intro call — CRO very engaged, requested pilot scope.",status:"Completed"}],
+    emailSubject:"Cascade AI GTM Pilot — Proposal Follow-Up",
+    emailBody:"Hi Jordan,\n\nThank you for the time on our intro call — I\'ve put together a tailored pilot scope based on what you shared about Cascade\'s Q2 revenue goals and AI agent deployment timeline.\n\nKey highlights:\n• GTM signal layer live in 30 days\n• Prescribed outreach playbook for your top 50 accounts\n• Multi-year pricing with year-over-year cost certainty\n\nI\'d like to walk through this with you before the pilot window closes. Would Thursday or Friday work?\n\nBest,\nMarty Berman"
+  },
+  {
+    name:"Riley Chen", title:"VP RevOps", account:"TrueRoute", persona:"Champion",
+    signalScore:85, engagement:78, nextAction:"Call", outcome:"Replied",
+    whyScores:["Champion who drives internal GTM tooling evaluation — key influencer on the buying decision.","VP RevOps engagement confirms operational ownership of the SiQ Cortex integration.","High engagement (78) and positive feedback indicate trust — ready for next-step commitment."],
+    history:[{type:"Email",date:"2026-02-10",desc:"Requested GTM stack integration documentation.",status:"Replied"},{type:"Email",date:"2026-02-18",desc:"Sent HubSpot integration overview.",status:"Replied"}],
+    emailSubject:"TrueRoute RevOps Integration — What This Looks Like Day 1",
+    emailBody:"Hi Riley,\n\nI know you\'ve been evaluating how SiQ Cortex fits into your existing HubSpot setup — so instead of another overview, I want to share the actual day-1 integration map for TrueRoute.\n\nThe signal schema writes directly to HubSpot contact properties. Your team sees next-best-action recommendations inside HubSpot — no new UI to train on. Payback is typically under 8 weeks.\n\n20 minutes this week?\n\nBest,\nMarty Berman"
+  },
+  {
+    name:"Sam Torres", title:"Head of RevOps", account:"Signal Labs", persona:"Champion",
+    signalScore:80, engagement:70, nextAction:"Sequence", outcome:"Pending",
+    whyScores:["Power user approaching seat cap — signals organic product-led growth opportunity.","Champion with Director-level influence makes them ideal internal advocate for expansion.","Operational engagement indicates they\'re experiencing the product\'s value firsthand."],
+    history:[{type:"Email",date:"2026-02-10",desc:"Usage cap alert triggered — system notification sent.",status:"Opened"},{type:"Email",date:"2026-02-15",desc:"Personalized follow-up on expansion options.",status:"Pending"}],
+    emailSubject:"Signal Labs is Working — Let\'s Unlock More",
+    emailBody:"Hi Sam,\n\nI saw that your team has been pushing up against usage limits — which is a great problem to have. It means the platform is delivering real value.\n\nI\'d love to walk you through what a full GTM intelligence tier looks like for Signal Labs. It\'s a natural next step given how your team is already using it.\n\nDo you have 20 minutes this week?\n\nBest,\nMarty Berman"
+  },
+  {
+    name:"Alex Kim", title:"Operating Partner", account:"Vertex Capital", persona:"Economic Buyer",
+    signalScore:81, engagement:60, nextAction:"Sequence", outcome:"No Response",
+    whyScores:["C-level Operating Partner driving portfolio GTM operations — highest authority in the buying unit.","Multi-brand potential makes this contact exponentially more valuable than a single account win.","Low engagement (60) despite high signal suggests quiet evaluation — needs personalized outreach."],
+    history:[{type:"Email",date:"2026-01-30",desc:"Intro email regarding portfolio GTM signal framework.",status:"No Response"},{type:"LinkedIn",date:"2026-02-10",desc:"Connection request sent.",status:"Accepted"}],
+    emailSubject:"Portfolio-Wide GTM Program for Vertex Capital",
+    emailBody:"Hi Alex,\n\nI\'ve been thinking about our LinkedIn connection and wanted to reach out more directly.\n\nWe\'ve been working with a few PE-backed holding companies on portfolio-wide GTM programs — one signal schema that scales across portfolio companies, significantly reducing both cost and execution overhead.\n\nGiven the scale of Vertex\'s portfolio, I think a 20-minute conversation would be worth your time.\n\nBest,\nMarty Berman"
+  },
+  {
+    name:"Jordan Park", title:"CRO", account:"Prism Revenue", persona:"Technical Buyer",
+    signalScore:88, engagement:80, nextAction:"Sequence", outcome:"Meeting Booked",
+    whyScores:["CRO leading active revenue team build-out = confirmed budget authority for GTM investment.","Technical Buyer engagement with AI sales intelligence content shows strategic evaluation depth.","High signal (88) + high engagement (80) = prime window for technical champion conversion."],
+    history:[{type:"Email",date:"2026-02-15",desc:"Intro email referencing AI sales intelligence content engagement.",status:"Opened"},{type:"LinkedIn",date:"2026-02-18",desc:"Sent connection with revenue intelligence note.",status:"Accepted"}],
+    emailSubject:"AI Sales Intelligence for Prism Revenue — Technical Overview",
+    emailBody:"Hi Jordan,\n\nI\'ve been following Prism Revenue\'s revenue team build-out with interest — the AI-native analytics angle is exactly where we\'re seeing the most demand.\n\nI\'d like to send you a technical framework we\'ve built for AI analytics companies navigating GTM signal architecture at scale. It addresses several gaps in traditional ABM tools that don\'t account for signal sequencing logic.\n\nWould that be useful? Happy to walk through it together.\n\nBest,\nMarty Berman"
+  },
+  {
+    name:"Quinn Davis", title:"VP Customer Success", account:"FlowStack AI", persona:"Champion",
+    signalScore:74, engagement:55, nextAction:"Intro Email", outcome:"Pending",
+    whyScores:["Champion flagging onboarding issues = internal advocate who is worried — critical for churn save.","VP CS has visibility into the problem and influence over the retention decision.","Moderate engagement (55) but high urgency — needs a rescue plan, not a pitch."],
+    history:[{type:"Support",date:"2026-02-01",desc:"Onboarding delay flagged to CS team.",status:"Open"},{type:"Email",date:"2026-02-10",desc:"CS check-in email sent.",status:"Replied"}],
+    emailSubject:"FlowStack AI Onboarding — Let\'s Get This Fixed",
+    emailBody:"Hi Quinn,\n\nThank you for being direct about the onboarding challenges. That\'s exactly the kind of feedback we need to make this right.\n\nI want to set up a working session — not a status update, but an actual problem-solving call where we come prepared to resolve the specific blockers your team is hitting.\n\nCan we get 30 minutes on the calendar this week?\n\nBest,\nMarty Berman"
+  },
+  {
+    name:"Morgan Walsh", title:"CTO", account:"FlowStack AI", persona:"Economic Buyer",
+    signalScore:69, engagement:35, nextAction:"Call", outcome:"No Response",
+    whyScores:["CTO asking about renewal concessions = financial escalation — highest urgency churn signal.","Economic Buyer with active dissatisfaction requires executive-to-executive outreach.","Low engagement (35) combined with churn signal demands immediate, high-touch intervention."],
+    history:[{type:"Email",date:"2026-02-08",desc:"Renewal notice sent — CTO asked about concessions.",status:"No Response"},{type:"Call",date:"2026-02-15",desc:"Voicemail left for CTO.",status:"No Response"}],
+    emailSubject:"FlowStack AI Renewal — I\'d Like to Connect Directly",
+    emailBody:"Hi Morgan,\n\nI understand there are some concerns about the renewal and I want to address them directly rather than through the normal process.\n\nI\'d like to speak with you personally — not to defend our pricing, but to understand what\'s not working and whether there\'s a path forward that makes sense for FlowStack AI. I have flexibility to find the right solution.\n\nCan we speak for 20 minutes this week?\n\nBest,\nMarty Berman"
+  },
+  {
+    name:"Parker Cruz", title:"CEO", account:"Cascade AI", persona:"Economic Buyer",
+    signalScore:93, engagement:85, nextAction:"Sequence", outcome:"Meeting Booked",
+    whyScores:["Highest signal score in portfolio (93) — CEO actively overseeing CRO onboarding with immediate budget authority.","Active pilot scope submission confirms formal buying process is underway — respond within 48 hours.","Strategic account scale (500–1,000 employees) makes this the highest-value opportunity in the portfolio."],
+    history:[{type:"Email",date:"2026-02-12",desc:"Pilot scope inquiry response sent.",status:"Opened"},{type:"Meeting",date:"2026-02-19",desc:"Intro call completed — CEO very engaged.",status:"Completed"}],
+    emailSubject:"Cascade AI GTM Pilot — CEO Overview",
+    emailBody:"Hi Parker,\n\nThank you for the time on our intro call — I\'ve put together a tailored overview based on what Jordan shared about Cascade\'s AI agent deployment goals.\n\nKey highlights:\n• GTM signal layer live in 30 days\n• Portfolio-ready architecture that scales across future acquisitions\n• Dedicated enterprise support team\n\nI\'d like to walk through this with you before your Q2 planning locks. Would Thursday or Friday work?\n\nBest,\nMarty Berman"
+  },
+  {
+    name:"Jamie Nakamura", title:"VP Revenue", account:"Cascade AI", persona:"Champion",
+    signalScore:86, engagement:78, nextAction:"Call", outcome:"Replied",
+    whyScores:["Champion with existing positive relationship — internal advocate accelerating the buying process.","VP Revenue role means deep involvement in GTM implementation details.","High engagement (78) and positive feedback indicate strong trust — leverage for multi-year close."],
+    history:[{type:"Meeting",date:"2026-01-28",desc:"Quarterly business review — very positive.",status:"Completed"},{type:"Email",date:"2026-02-16",desc:"Multi-year pilot preview sent.",status:"Replied"}],
+    emailSubject:"Multi-Year Pilot + Internal Champion Materials",
+    emailBody:"Hi Jamie,\n\nGlad our QBR went well — your feedback has been really helpful in shaping our approach for Cascade AI.\n\nI\'ve included some internal champion materials that you can use to walk Parker and Jordan through our pilot scope. These are designed to answer CEO/CRO-level questions proactively.\n\nAlso — I\'d love your honest read on where we stand versus other vendors being evaluated.\n\nThanks,\nMarty Berman"
+  },
+];
+
+// ── SEQUENCES & PLAYS ────────────────────────────────────────
+const PLAYS = [
+  { name:"New CRO/VP Sales Onboarding Sequence", desc:"Target new CROs and VP Sales within their first 90 days to establish strategic GTM value early.", whenToUse:"New CRO or VP Sales hired signal detected.", personas:["Economic Buyer"], snippet:`"Hi {{name}}, congrats on the new role at {{account}}! I noticed you are focusing on {{signal}}..."`, goal:"Book introductory meeting", status:"Active" },
+  { name:"AI Platform Expansion Sequence", desc:"Engage technical and revenue buyers when AI platform adoption or GTM intelligence interest spikes.", whenToUse:"AI platform usage surge or GTM intelligence content engagement.", personas:["Technical Buyer","Champion"], snippet:`"I saw your team is expanding AI capabilities. We help firms like yours build a signal layer that prescribes the right play..."`, goal:"Demo GTM signal platform", status:"Active" },
+  { name:"Onboarding Stall / Adoption Risk Save Play", desc:"Proactive outreach for accounts showing low adoption or onboarding delays.", whenToUse:"Onboarding users stalled or adoption issues flagged.", personas:["Champion","Economic Buyer"], snippet:`"We noticed your team hasn't been as active lately. I'd love to reconnect and make sure you're getting full value..."`, goal:"Prevent churn & re-engage", status:"Active" },
+  { name:"Portfolio / Multi-Brand Expansion Play", desc:"Leverage existing relationships to expand into portfolio companies or new revenue lines.", whenToUse:"Operating Partner or existing customer driving portfolio expansion conversations.", personas:["Economic Buyer","Influencer"], snippet:`"Given our work together, I think {{portfolio_company}} could benefit from the same approach we used with {{account}}..."`, goal:"Land new logo in portfolio", status:"Active" },
+];
+// ── END EDITABLE SECTION ─────────────────────────────────────
+</script>EBAR ── -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+    <span class="logo-text">ScalientIQ</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-item active" id="nav-dashboard" onclick="showPage('dashboard',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Executive Dashboard
+      <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+    <div class="nav-item" id="nav-accounts" onclick="showPage('accounts',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/></svg>
+      Accounts
+      <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+    <div class="nav-item" id="nav-contacts" onclick="showPage('contacts',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Contacts
+      <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+    <div class="nav-item" id="nav-plays" onclick="showPage('plays',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+      Sequences &amp; Plays
+      <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+    <div class="nav-item" id="nav-script" onclick="showPage('script',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      Demo Mode (Script)
+    </div>
+    <div style="height:1px;background:rgba(255,255,255,0.07);margin:8px 8px;"></div>
+    <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.8px;color:rgba(255,255,255,0.25);padding:4px 12px 6px;">Platform Features</div>
+    <div class="nav-item" id="nav-crmsync" onclick="showPage('crmsync',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+      CRM Sync
+      <span style="margin-left:auto;font-size:9px;font-weight:700;background:#dcfce7;color:#15803d;padding:1px 5px;border-radius:4px;">LIVE</span>
+    </div>
+    <div class="nav-item" id="nav-reptasks" onclick="showPage('reptasks',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      My Daily Tasks
+      <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+    <div class="nav-item" id="nav-kb" onclick="showPage('kb',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      Knowledge Base
+      <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+    <div class="nav-item" id="nav-icp" onclick="showPage('icp',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      ICP &amp; Onboarding
+      <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+    <div class="nav-item" id="nav-coaching" onclick="showPage('coaching',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      Rep Coaching
+      <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="cv-label">Current View</div>
+    <div class="cv-val"><div class="dot-green"></div>Live Signals</div>
+  </div>
+</div>
+
+<!-- ── MAIN ── -->
+<div class="main">
+  <div class="topbar">
+    <div class="tb-brand">
+      <div class="brand-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <span id="tb-client">ScalientIQ</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="tb-search">
+      <svg class="tb-si" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Search signals, accounts...">
+    </div>
+    <div class="tb-right">
+      <div class="demo-badge">DEMO MODE</div>
+      <div class="tb-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.08-8.49"/></svg></div>
+      <div class="tb-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+      <div class="tb-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg></div>
+      <div class="tb-user">
+        <div class="ui"><div class="un" id="uname"></div><div class="ur" id="urole"></div></div>
+        <div class="avatar" id="uav"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content" id="main-content">
+    <!-- EXECUTIVE DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="metrics-row" id="metrics-row"></div>
+      <div class="ai-banner">
+        <div class="aib-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+        <div style="flex:1"><div class="aib-label">Portfolio AI Insight</div><div class="aib-text" id="ai-text"></div></div>
+        <button class="aib-btn">View Opportunities</button>
+      </div>
+      <div class="charts-row">
+        <div class="chart-card"><div class="chart-title">Account Signal Strength Distribution</div><div class="chart-wrap"><canvas id="chartBar"></canvas></div></div>
+        <div class="chart-card"><div class="chart-title">NRR Risk by Account</div><div class="chart-wrap"><canvas id="chartLine"></canvas></div></div>
+        <div class="chart-card"><div class="chart-title">Contact Engagement vs Signal Score</div><div class="chart-wrap"><canvas id="chartScatter"></canvas></div></div>
+      </div>
+      <div class="bottom-row">
+        <div class="donut-card"><div class="chart-title">Outreach Outcome Distribution</div><div class="donut-wrap"><canvas id="chartDonut"></canvas></div><div class="donut-legend" id="donut-leg"></div></div>
+        <div class="priority-card">
+          <div class="ph"><span class="ph-title">Top Priority Accounts</span><span class="va" onclick="showPage('accounts',document.getElementById('nav-accounts'))">View All</span></div>
+          <table class="pt"><thead><tr><th>Account</th><th>Signal Strength</th><th>NRR Risk</th><th>Recommended Service</th><th>Action</th></tr></thead><tbody id="ptbody"></tbody></table>
+        </div>
+      </div>
+      <!-- WEBSITE VISITORS (Leadpipe) -->
+      <div class="wv-card">
+        <div class="wv-hdr">
+          <div class="wv-hdr-left">
+            <div>
+              <div class="wv-title">Website Visitors — Not Yet in CRM <span class="lp-badge" style="margin-left:8px;">📡 Leadpipe</span></div>
+              <div class="wv-sub">Identified visitors from the last 30 days • Click a row to research in Leadpipe</div>
+            </div>
+          </div>
+          <button class="lp-open-btn" onclick="alert('Open dashboard.leadpipe.com to see full visitor data and sync to your CRM.')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Open Leadpipe
+          </button>
+        </div>
+        <table class="wv-table"><thead><tr><th>Visitor</th><th>Company</th><th>Intent</th><th>Pages Visited</th><th>Sessions</th><th>Last Seen</th><th></th></tr></thead><tbody id="wv-tbody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- ACCOUNTS -->
+    <div class="page" id="page-accounts">
+      <div class="page-header">
+        <div class="page-title">Accounts Signal Matrix</div>
+        <div class="page-controls">
+          <div class="sb-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search accounts..." oninput="filterAcc(this.value)"></div>
+          <select class="fl-sel" onchange="filterAccInd(this.value)" id="ind-filter"><option value="">All</option></select>
+          <div class="fl-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filters</div>
+        </div>
+      </div>
+      <div class="table-card"><table class="dt"><thead><tr><th>Account Name</th><th>Industry</th><th>Signal Strength</th><th>NRR Risk</th><th>Expansion Signal</th><th>Web Intent</th><th>Last Sales Touch</th><th>Sales Owner</th><th></th></tr></thead><tbody id="acc-tbody"></tbody></table></div>
+    </div>
+
+    <!-- CONTACTS -->
+    <div class="page" id="page-contacts">
+      <div class="page-header">
+        <div class="page-title">Contacts Signal Intelligence</div>
+        <div class="page-controls">
+          <div class="sb-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search name, email, account..." oninput="filterCon(this.value)"></div>
+          <select class="fl-sel" onchange="filterConOut(this.value)"><option value="">All</option><option>Meeting Booked</option><option>Pending</option><option>No Response</option><option>Replied</option></select>
+          <div class="fl-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filters</div>
+        </div>
+      </div>
+      <div class="table-card"><table class="dt"><thead><tr><th>Name &amp; Title</th><th>Account</th><th>Persona</th><th>Signal Score</th><th>Engagement</th><th>Next Action</th><th>Outcome</th><th></th></tr></thead><tbody id="con-tbody"></tbody></table></div>
+    </div>
+
+    <!-- PLAYS -->
+    <div class="page" id="page-plays">
+      <div class="page-header"><div><div class="page-title">Sequences &amp; Plays</div><div class="page-sub">Automated GTM playbooks based on real-time signals.</div></div><button class="create-btn">Create New Play</button></div>
+      <div class="plays-grid" id="plays-grid"></div>
+    </div>
+
+    <!-- SCRIPT -->
+    <div class="page" id="page-script">
+      <div class="page-title" style="margin-bottom:20px;">Demo Mode (Script)</div>
+      <div class="table-card" style="padding:28px;"><div style="display:flex;flex-direction:column;gap:12px;" id="script-body"></div></div>
+    </div>
+
+    <!-- CRM SYNC -->
+    <div class="page" id="page-crmsync">
+      <div class="fp-header">
+        <div class="fp-title">CRM Sync <span class="fp-badge fp-badge-live">● LIVE</span></div>
+        <div class="fp-sub">Every action in ScalientIQ writes back to HubSpot and Salesforce automatically — meetings booked, emails sent, deal stage changes, notes.</div>
+      </div>
+      <div class="crm-conn-row">
+        <div class="crm-conn-card">
+          <div class="crm-logo crm-hs" style="font-size:22px;">🟠</div>
+          <div><div style="font-size:15px;font-weight:700;color:#111827;">HubSpot CRM</div><div style="font-size:12px;color:#6b7280;margin-top:2px;">Connected · Last sync 2 min ago</div></div>
+          <div class="crm-status-on"><div class="crm-status-on-dot"></div>Active</div>
+        </div>
+        <div class="crm-conn-card">
+          <div class="crm-logo crm-sf" style="font-size:22px;">☁️</div>
+          <div><div style="font-size:15px;font-weight:700;color:#111827;">Salesforce</div><div style="font-size:12px;color:#6b7280;margin-top:2px;">Not connected</div></div>
+          <div class="crm-status-off">+ Connect</div>
+        </div>
+      </div>
+      <div class="fp-grid fp-grid-2">
+        <div class="fp-card">
+          <div class="fp-card-title">📡 Live Activity Feed</div>
+          <div class="sync-feed">
+            <div class="sync-item"><div class="sync-icon si-green">📅</div><div class="sync-detail"><div class="sync-what">Meeting Booked → Jordan Lee</div><div class="sync-who">Cascade AI · CRO · Deal stage updated to "Meeting Set"</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;"><div class="sync-crm-tag tag-hs">HubSpot</div><div class="sync-time">2 min ago</div></div></div>
+            <div class="sync-item"><div class="sync-icon si-blue">✉️</div><div class="sync-detail"><div class="sync-what">Email Sent → Franklin Rios</div><div class="sync-who">Next Net · CEO · Activity logged, sequence step advanced</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;"><div class="sync-crm-tag tag-hs">HubSpot</div><div class="sync-time">14 min ago</div></div></div>
+            <div class="sync-item"><div class="sync-icon si-purple">📝</div><div class="sync-detail"><div class="sync-what">Call Notes Synced → Jordan Park</div><div class="sync-who">Prism Revenue · CRO · AI summary pushed to contact record</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;"><div class="sync-crm-tag tag-hs">HubSpot</div><div class="sync-time">1 hr ago</div></div></div>
+            <div class="sync-item"><div class="sync-icon si-amber">💰</div><div class="sync-detail"><div class="sync-what">Deal Stage Updated → Cascade AI</div><div class="sync-who">Stage: Discovery → Proposal · ACV: $50M+ · Owner notified</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;"><div class="sync-crm-tag tag-hs">HubSpot</div><div class="sync-time">2 hr ago</div></div></div>
+            <div class="sync-item"><div class="sync-icon si-red">⚠️</div><div class="sync-detail"><div class="sync-what">Churn Risk Flag → FlowStack AI</div><div class="sync-who">NRR Risk 80 · CS team task created · Manager alerted</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;"><div class="sync-crm-tag tag-hs">HubSpot</div><div class="sync-time">3 hr ago</div></div></div>
+          </div>
+        </div>
+        <div class="fp-card">
+          <div class="fp-card-title">⚙️ Sync Settings</div>
+          <div class="fp-section-label" style="margin-bottom:12px;">What writes back automatically</div>
+          <div class="sync-toggle-row"><div><div class="sync-toggle-label">Meetings Booked</div><div class="sync-toggle-sub">Creates activity + updates deal stage</div></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+          <div class="sync-toggle-row"><div><div class="sync-toggle-label">Emails Sent</div><div class="sync-toggle-sub">Logs email activity + attachments</div></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+          <div class="sync-toggle-row"><div><div class="sync-toggle-label">Deal Stage Changes</div><div class="sync-toggle-sub">Auto-advances pipeline based on signal</div></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+          <div class="sync-toggle-row"><div><div class="sync-toggle-label">Signal Score Updates</div><div class="sync-toggle-sub">Writes SiQ score as a CRM property</div></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+          <div class="sync-toggle-row"><div><div class="sync-toggle-label">Rep Task Completions</div><div class="sync-toggle-sub">Marks tasks complete in CRM</div></div><label class="toggle"><input type="checkbox"><span class="slider"></span></label></div>
+          <div class="sync-toggle-row"><div><div class="sync-toggle-label">AI Coaching Notes</div><div class="sync-toggle-sub">Pushes call summaries to contact record</div></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+          <button style="margin-top:14px;background:#2563eb;color:white;font-size:13px;font-weight:700;padding:10px 20px;border-radius:8px;border:none;cursor:pointer;">Save Sync Settings</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- REP DAILY TASKS -->
+    <div class="page" id="page-reptasks">
+      <div class="fp-header" style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div class="fp-title">My Daily Tasks <span class="fp-badge fp-badge-new">Rep View</span></div>
+          <div class="fp-sub">Your guided action list for today, March 23 · Ranked by priority and signal strength</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px;">Today's Progress</div>
+          <div style="font-size:22px;font-weight:800;color:#2563eb;" id="task-progress-label">2 / 7</div>
+          <div class="rep-progress-bar" style="width:160px;margin-top:6px;"><div class="rep-progress-fill" id="task-progress-bar" style="width:28%"></div></div>
+        </div>
+      </div>
+      <div class="task-group">
+        <div class="task-group-label">🔥 High Priority — Do These First</div>
+        <div class="task-item" id="task-0" onclick="toggleTask(0)">
+          <div class="task-check" id="task-check-0">✓</div>
+          <span class="task-priority tp-high">HIGH</span>
+          <div class="task-body">
+            <div class="task-title">Call Jordan Lee — Cascade AI (Active Pilot Scope)</div>
+            <div class="task-desc">CRO in role &lt;45 days, active pilot scope submitted. Walk through the proposal you sent. Address timeline questions. Goal: confirm next steps before competing vendors respond.</div>
+            <div class="task-meta"><span class="task-due">⏰ Due by 11am</span><span class="task-acct">Cascade AI</span></div>
+          </div>
+          <button class="task-action-btn" onclick="event.stopPropagation();">Open Contact</button>
+        </div>
+        <div class="task-item" id="task-1" onclick="toggleTask(1)">
+          <div class="task-check" id="task-check-1">✓</div>
+          <span class="task-priority tp-high">HIGH</span>
+          <div class="task-body">
+            <div class="task-title">Send Outreach Email — Jordan Park, CRO @ Prism Revenue</div>
+            <div class="task-desc">Revenue team grew by 4 in 60 days. CRO engaged with AI sales intelligence content twice this week. Strike now before the signal cools. AI message ready to send.</div>
+            <div class="task-meta"><span class="task-due">⏰ Due by 12pm</span><span class="task-acct">Prism Revenue</span></div>
+          </div>
+          <button class="task-action-btn" onclick="event.stopPropagation();">Draft Email</button>
+        </div>
+        <div class="task-item" id="task-2" onclick="toggleTask(2)">
+          <div class="task-check" id="task-check-2"></div>
+          <span class="task-priority tp-high">HIGH</span>
+          <div class="task-body">
+            <div class="task-title">Escalate FlowStack AI to CS — Churn Risk 80</div>
+            <div class="task-desc">CTO asking about renewal concessions. Onboarding stalled 3+ weeks. Do not pitch — this is a save play. Tag CS lead in HubSpot and schedule a rescue call within 48 hours.</div>
+            <div class="task-meta"><span class="task-due">⏰ Due Today</span><span class="task-acct">FlowStack AI</span></div>
+          </div>
+          <button class="task-action-btn" onclick="event.stopPropagation();">Flag in CRM</button>
+        </div>
+      </div>
+      <div class="task-group">
+        <div class="task-group-label">⚡ Medium Priority</div>
+        <div class="task-item" id="task-3" onclick="toggleTask(3)">
+          <div class="task-check checked" id="task-check-3">✓</div>
+          <span class="task-priority tp-med">MED</span>
+          <div class="task-body task-title" style="text-decoration:line-through;opacity:0.6;">
+            <div class="task-title">LinkedIn Follow-up — Franklin Rios, CEO @ Next Net</div>
+          </div>
+        </div>
+        <div class="task-item" id="task-4" onclick="toggleTask(4)">
+          <div class="task-check checked" id="task-check-4">✓</div>
+          <span class="task-priority tp-med">MED</span>
+          <div class="task-body" style="opacity:0.6;">
+            <div class="task-title" style="text-decoration:line-through;">Log discovery call notes — Tristan Harris, Next Net</div>
+          </div>
+        </div>
+        <div class="task-item" id="task-5" onclick="toggleTask(5)">
+          <div class="task-check" id="task-check-5"></div>
+          <span class="task-priority tp-med">MED</span>
+          <div class="task-body">
+            <div class="task-title">Send case study pack — Alex Kim @ Vertex Capital</div>
+            <div class="task-desc">Operating Partner requested portfolio case studies. 60 engagement score — warming up. Send the 3-case study pack and suggest a call with the broader Vertex team.</div>
+            <div class="task-meta"><span class="task-due">⏰ Due by 3pm</span><span class="task-acct">Vertex Capital</span></div>
+          </div>
+          <button class="task-action-btn" onclick="event.stopPropagation();">Send Materials</button>
+        </div>
+      </div>
+      <div class="task-group">
+        <div class="task-group-label">📋 Admin — Before EOD</div>
+        <div class="task-item" id="task-6" onclick="toggleTask(6)">
+          <div class="task-check" id="task-check-6"></div>
+          <span class="task-priority tp-low">LOW</span>
+          <div class="task-body">
+            <div class="task-title">Update deal stages for this week's activity in HubSpot</div>
+            <div class="task-desc">3 deals need stage updates: Cascade AI (Discovery → Proposal), TrueRoute (Outreach → Discovery), Prism Revenue (New → Outreach). ScalientIQ can auto-sync these — just confirm.</div>
+            <div class="task-meta"><span class="task-due">⏰ Before 5pm</span><span class="task-acct">All Accounts</span></div>
+          </div>
+          <button class="task-action-btn" onclick="event.stopPropagation();">Auto-Sync to CRM</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- KNOWLEDGE BASE -->
+    <div class="page" id="page-kb">
+      <div class="fp-header">
+        <div class="fp-title">Knowledge Base <span class="fp-badge fp-badge-new">AI Guardrails</span></div>
+        <div class="fp-sub">Control what language, tone, and messaging your AI SDR uses in every outreach. These rules apply to every AI-generated message, sequence, and response.</div>
+      </div>
+      <div class="fp-grid fp-grid-2">
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="kb-rule-card">
+            <div class="kb-rule-header"><div class="kb-rule-icon kbi-red">🚫</div><div><div class="kb-rule-title">Banned Words &amp; Phrases</div><div class="kb-rule-sub">AI will never use these — ever</div></div><button class="kb-add-btn" style="margin:0;margin-left:auto;padding:5px 10px;">+ Add</button></div>
+            <div class="kb-pills">
+              <span class="kb-pill-red">synergy</span><span class="kb-pill-red">paradigm shift</span><span class="kb-pill-red">circle back</span><span class="kb-pill-red">leverage</span><span class="kb-pill-red">scalable solution</span><span class="kb-pill-red">reach out</span><span class="kb-pill-red">touch base</span><span class="kb-pill-red">game-changing</span>
+            </div>
+          </div>
+          <div class="kb-rule-card">
+            <div class="kb-rule-header"><div class="kb-rule-icon kbi-green">✅</div><div><div class="kb-rule-title">Preferred Phrases</div><div class="kb-rule-sub">AI prioritizes these over alternatives</div></div><button class="kb-add-btn" style="margin:0;margin-left:auto;padding:5px 10px;">+ Add</button></div>
+            <div class="kb-pills">
+              <span class="kb-pill-green">worth a conversation</span><span class="kb-pill-green">built for companies like yours</span><span class="kb-pill-green">we've seen this work</span><span class="kb-pill-green">no pitch — just a question</span><span class="kb-pill-green">I noticed</span>
+            </div>
+          </div>
+          <div class="kb-rule-card">
+            <div class="kb-rule-header"><div class="kb-rule-icon kbi-blue">📖</div><div><div class="kb-rule-title">Company Glossary</div><div class="kb-rule-sub">How you refer to your own products &amp; services</div></div></div>
+            <div class="kb-pills">
+              <span class="kb-pill-blue">ScalientIQ → "SiQ Cortex"</span><span class="kb-pill-blue">dashboard → "signal view"</span><span class="kb-pill-blue">AI engine → "Cortex AI"</span>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="kb-rule-card">
+            <div class="kb-rule-header"><div class="kb-rule-icon kbi-amber">🎚️</div><div><div class="kb-rule-title">Tone Controls</div><div class="kb-rule-sub">Slide to adjust AI writing style across all outreach</div></div></div>
+            <div class="kb-tone-row"><div><div class="kb-tone-label">Formality</div><div class="kb-tone-sub">Casual ↔ Professional</div></div><input type="range" class="tone-slider" min="0" max="100" value="65"></div>
+            <div class="kb-tone-row"><div><div class="kb-tone-label">Directness</div><div class="kb-tone-sub">Soft ↔ Direct</div></div><input type="range" class="tone-slider" min="0" max="100" value="80"></div>
+            <div class="kb-tone-row"><div><div class="kb-tone-label">Urgency</div><div class="kb-tone-sub">Low-pressure ↔ High-urgency</div></div><input type="range" class="tone-slider" min="0" max="100" value="55"></div>
+            <div class="kb-tone-row"><div><div class="kb-tone-label">Email Length</div><div class="kb-tone-sub">Concise ↔ Detailed</div></div><input type="range" class="tone-slider" min="0" max="100" value="40"></div>
+          </div>
+          <div class="kb-rule-card">
+            <div class="kb-rule-header"><div class="kb-rule-icon kbi-blue">🌐</div><div><div class="kb-rule-title">Language &amp; Audience Rules</div><div class="kb-rule-sub">Special rules for specific personas or regions</div></div></div>
+            <div class="sync-toggle-row"><div><div class="sync-toggle-label">Avoid idioms for non-native audiences</div><div class="sync-toggle-sub">E.g. "hit the ground running", "low-hanging fruit"</div></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+            <div class="sync-toggle-row"><div><div class="sync-toggle-label">Use metric benchmarks with CFO personas</div><div class="sync-toggle-sub">Always include ROI, payback period, NRR data</div></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+            <div class="sync-toggle-row"><div><div class="sync-toggle-label">Keep technical depth low for Economic Buyers</div><div class="sync-toggle-sub">No implementation detail in C-suite outreach</div></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+            <div class="sync-toggle-row"><div><div class="sync-toggle-label">Reference competitor names</div><div class="sync-toggle-sub">Allow AI to name-drop known alternatives</div></div><label class="toggle"><input type="checkbox"><span class="slider"></span></label></div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:16px;text-align:right;"><button style="background:#2563eb;color:white;font-size:13px;font-weight:700;padding:10px 22px;border-radius:8px;border:none;cursor:pointer;">Save Knowledge Base Rules</button></div>
+    </div>
+
+    <!-- ICP & ONBOARDING -->
+    <div class="page" id="page-icp">
+      <div class="fp-header">
+        <div class="fp-title">ICP &amp; Onboarding Setup <span class="fp-badge fp-badge-new">Foundational</span></div>
+        <div class="fp-sub">Define who you're targeting before anything runs. Get this right and every signal, message, and play downstream becomes sharper.</div>
+      </div>
+      <div class="fp-grid fp-grid-2" style="margin-bottom:20px;">
+        <div class="fp-card">
+          <div class="fp-card-title">🗺️ Onboarding Progress</div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div class="icp-step"><div class="icp-step-num done">✓</div><div><div class="icp-step-title">Company Profile</div><div class="icp-step-sub">Name, industry, product, value prop</div></div><span class="icp-step-status icp-done">Complete</span></div>
+            <div class="icp-step"><div class="icp-step-num done">✓</div><div><div class="icp-step-title">ICP Definition</div><div class="icp-step-sub">Target company size, industry, stage</div></div><span class="icp-step-status icp-done">Complete</span></div>
+            <div class="icp-step"><div class="icp-step-num">3</div><div><div class="icp-step-title">Persona Mapping</div><div class="icp-step-sub">Titles, roles, pain points per persona</div></div><span class="icp-step-status icp-active">In Progress</span></div>
+            <div class="icp-step"><div class="icp-step-num">4</div><div><div class="icp-step-title">Signal Configuration</div><div class="icp-step-sub">What triggers count as buying signals</div></div><span class="icp-step-status icp-pending">Pending</span></div>
+            <div class="icp-step"><div class="icp-step-num">5</div><div><div class="icp-step-title">Knowledge Base Rules</div><div class="icp-step-sub">Tone, language, banned phrases</div></div><span class="icp-step-status icp-pending">Pending</span></div>
+            <div class="icp-step"><div class="icp-step-num">6</div><div><div class="icp-step-title">CRM Connection</div><div class="icp-step-sub">Sync HubSpot or Salesforce</div></div><span class="icp-step-status icp-pending">Pending</span></div>
+          </div>
+        </div>
+        <div class="fp-card">
+          <div class="fp-card-title">🏢 Company Profile</div>
+          <div class="icp-field-row"><div class="icp-field-label">Company Name</div><div class="icp-field-val">Scalient IQ</div></div>
+          <div class="icp-field-row"><div class="icp-field-label">Product / Service</div><div class="icp-field-val">AI-powered GTM signal intelligence platform</div></div>
+          <div class="icp-field-row"><div class="icp-field-label">Primary Value Proposition</div><div class="icp-field-val">Know exactly who to call, why today, and what to say — powered by real-time buying signals</div></div>
+          <div class="icp-field-row"><div class="icp-field-label">Sales Cycle Length</div><div class="icp-field-val">30–90 days</div></div>
+          <button class="icp-save-btn" style="margin-top:6px;">Update Profile</button>
+        </div>
+      </div>
+      <div class="fp-card">
+        <div class="fp-card-title">🎯 ICP Definition</div>
+        <div class="fp-grid fp-grid-3" style="margin-bottom:14px;">
+          <div><div class="icp-field-row"><div class="icp-field-label">Target Industries</div><div class="icp-field-val">SaaS, Accounting/Finance, Professional Services, PE/VC</div></div></div>
+          <div><div class="icp-field-row"><div class="icp-field-label">Company Size</div><div class="icp-field-val">50–1,000 employees</div></div></div>
+          <div><div class="icp-field-row"><div class="icp-field-label">ACV Range</div><div class="icp-field-val">$5M – $50M+</div></div></div>
+        </div>
+        <div class="fp-card-title" style="font-size:13px;margin-bottom:10px;">🧑‍💼 Target Personas</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div class="icp-persona-card" style="flex:1;min-width:180px;"><div class="icp-persona-av">👔</div><div><div style="font-size:13px;font-weight:700;color:#111827;">CFO / VP Finance</div><div style="font-size:11px;color:#6b7280;margin-top:2px;">Economic Buyer · Budget authority · NRR focus</div><div style="margin-top:6px;"><span class="kb-pill-blue" style="font-size:10px;">New in role</span> <span class="kb-pill-green" style="font-size:10px;">Audit trigger</span></div></div></div>
+          <div class="icp-persona-card" style="flex:1;min-width:180px;"><div class="icp-persona-av">🛡️</div><div><div style="font-size:13px;font-weight:700;color:#111827;">CISO / Head of Security</div><div style="font-size:11px;color:#6b7280;margin-top:2px;">Technical Buyer · SOC scope · Compliance mandate</div><div style="margin-top:6px;"><span class="kb-pill-blue" style="font-size:10px;">Hiring signal</span> <span class="kb-pill-green" style="font-size:10px;">Content engage</span></div></div></div>
+          <div class="icp-persona-card" style="flex:1;min-width:180px;"><div class="icp-persona-av">⚙️</div><div><div style="font-size:13px;font-weight:700;color:#111827;">VP CS / Ops</div><div style="font-size:11px;color:#6b7280;margin-top:2px;">Champion · Internal advocate · Implementation risk</div><div style="margin-top:6px;"><span class="kb-pill-amber" style="font-size:10px;background:#fef9c3;color:#713f12;border:1px solid #fde68a;padding:3px 10px;border-radius:20px;">Churn signal</span></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REP COACHING -->
+    <div class="page" id="page-coaching">
+      <div class="fp-header">
+        <div class="fp-title">Rep Coaching <span class="fp-badge fp-badge-new">AI-Powered</span></div>
+        <div class="fp-sub">Meeting recordings and call notes are ingested automatically. AI generates rep-level feedback and pushes coaching notes back into the CRM.</div>
+      </div>
+      <div class="coach-overall">
+        <div class="coach-stat"><div class="coach-stat-val">8.4</div><div class="coach-stat-label">Avg Call Score</div></div>
+        <div class="coach-stat"><div class="coach-stat-val">12</div><div class="coach-stat-label">Calls This Week</div></div>
+        <div class="coach-stat"><div class="coach-stat-val" style="color:#22c55e;">+1.2</div><div class="coach-stat-label">Score Trend</div></div>
+        <div class="coach-stat"><div class="coach-stat-val">3</div><div class="coach-stat-label">CRM Notes Pushed</div></div>
+      </div>
+      <div class="coach-call-card">
+        <div class="ccc-top">
+          <div class="ccc-av" style="background:#2563eb;">AR</div>
+          <div>
+            <div class="ccc-name">Marty Berman — Discovery Call, Cascade AI</div>
+            <div class="ccc-meta">Mar 19 · 28 min · Parker Cruz (CFO) · Recorded via Gong</div>
+            <div style="margin-top:6px;display:flex;gap:6px;"><span class="tag tb-">CFO New-in-Role</span><span class="tag tg">Proposal Sent</span></div>
+          </div>
+          <div class="ccc-score">
+            <div class="ccc-score-val">9.1</div>
+            <div class="ccc-score-label">Call Score</div>
+          </div>
+        </div>
+        <div class="fp-grid fp-grid-3">
+          <div class="coach-section">
+            <div class="coach-section-label">✅ What Went Well</div>
+            <div class="coach-item"><div class="coach-dot-green"></div>Opened with signal-backed context — CRO felt the research was specific to Cascade AI, not a template</div>
+            <div class="coach-item"><div class="coach-dot-green"></div>Listened 65% of the call. Healthy ratio — let Olivia define the RFP criteria before pitching</div>
+            <div class="coach-item"><div class="coach-dot-green"></div>Proposed a multi-year frame naturally — didn't feel like a close, felt like a solution</div>
+          </div>
+          <div class="coach-section">
+            <div class="coach-section-label">⚡ Improve Next Time</div>
+            <div class="coach-item"><div class="coach-dot-amber"></div>Didn't ask about internal champion — Marcus Allen wasn't surfaced. Always map the buying committee</div>
+            <div class="coach-item"><div class="coach-dot-amber"></div>Timeline question came too early (min 4). Let the prospect establish urgency before asking about timeline</div>
+            <div class="coach-item"><div class="coach-dot-amber"></div>Proposal sent same day — good speed. Add a custom summary section referencing RFP criteria she mentioned</div>
+          </div>
+          <div class="coach-section">
+            <div class="coach-section-label">➡️ Recommended Next Steps</div>
+            <div class="coach-item"><div class="coach-dot-blue"></div>Send Marcus Allen a warm email referencing Olivia's RFP requirements to activate internal champion</div>
+            <div class="coach-item"><div class="coach-dot-blue"></div>Follow up on proposal with a 2-slide "decision summary" CFOs can share internally</div>
+            <div class="coach-item"><div class="coach-dot-blue"></div>Book a 3-way call: Alex + Olivia + Marcus before RFP deadline to eliminate competitor objections</div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid #f1f5f9;">
+          <div style="font-size:12px;color:#9ca3af;">AI Coaching by ScalientIQ Cortex · Source: Gong recording + CRM notes</div>
+          <button class="crm-push-btn">✓ Push to HubSpot</button>
+        </div>
+      </div>
+      <div class="coach-call-card">
+        <div class="ccc-top">
+          <div class="ccc-av" style="background:#dc2626;">AR</div>
+          <div>
+            <div class="ccc-name">Marty Berman — Check-in Call, FlowStack AI</div>
+            <div class="ccc-meta">Mar 18 · 14 min · Rachel Kim (VP CS) · Notes from Salesforce</div>
+            <div style="margin-top:6px;display:flex;gap:6px;"><span class="tag trd">Churn Risk</span><span class="tag tam">No Resolution</span></div>
+          </div>
+          <div class="ccc-score">
+            <div class="ccc-score-val" style="color:#dc2626;">5.8</div>
+            <div class="ccc-score-label">Call Score</div>
+          </div>
+        </div>
+        <div class="fp-grid fp-grid-3">
+          <div class="coach-section">
+            <div class="coach-section-label">✅ What Went Well</div>
+            <div class="coach-item"><div class="coach-dot-green"></div>Acknowledged the problem directly — Rachel responded positively to the non-defensive tone</div>
+            <div class="coach-item"><div class="coach-dot-green"></div>Offered a working session, not just a status call — shows commitment to solving vs. managing</div>
+          </div>
+          <div class="coach-section">
+            <div class="coach-section-label">⚡ Improve Next Time</div>
+            <div class="coach-item"><div class="coach-dot-amber"></div>Brian Lopez (CFO) wasn't looped in — churn risk at 81 requires economic buyer engagement. This was too low in the org</div>
+            <div class="coach-item"><div class="coach-dot-amber"></div>No concrete resolution timeline offered — Rachel is still unsure if this will be fixed before renewal</div>
+            <div class="coach-item"><div class="coach-dot-amber"></div>Talked too much in first 5 minutes. Let Rachel vent first — she has more context on the internal frustration</div>
+          </div>
+          <div class="coach-section">
+            <div class="coach-section-label">➡️ Recommended Next Steps</div>
+            <div class="coach-item"><div class="coach-dot-blue"></div>Escalate to Brian Lopez (CFO) with a direct email within 24 hours — do not wait for Rachel to bridge</div>
+            <div class="coach-item"><div class="coach-dot-blue"></div>Create a written resolution plan with specific dates — vague promises accelerate churn at this stage</div>
+            <div class="coach-item"><div class="coach-dot-blue"></div>Loop in your own implementation lead — this needs a technical presence, not just account management</div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid #f1f5f9;">
+          <div style="font-size:12px;color:#9ca3af;">AI Coaching by ScalientIQ Cortex · Source: Salesforce call notes</div>
+          <button class="crm-push-btn">✓ Push to HubSpot</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── SIDE PANEL ── -->
+<div class="panel-backdrop" id="pbd" onclick="closePanel()"></div>
+<div class="side-panel" id="side-panel">
+  <button class="sp-close" onclick="closePanel()">×</button>
+  <div class="sp-body" id="sp-body"></div>
+</div>
+
+<!-- ── OUTREACH MODAL ── -->
+<div class="modal-bd" id="modal-bd" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box" id="modal-box"></div>
+</div>
+
+<!-- ── PORTFOLIO COPILOT ── -->
+<div class="copilot-wrap">
+  <div class="copilot-panel" id="copilot-panel">
+    <div class="cp-header">
+      <div class="cp-hicon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><line x1="12" y1="7" x2="12" y2="11"/><line x1="8" y1="15" x2="8" y2="15" stroke-width="3"/><line x1="12" y1="15" x2="12" y2="15" stroke-width="3"/><line x1="16" y1="15" x2="16" y2="15" stroke-width="3"/></svg></div>
+      <div style="flex:1"><div class="cp-htitle">Portfolio Copilot</div><div class="cp-active"><div class="cp-active-dot"></div>AI ACTIVE</div></div>
+      <div class="cp-hbtns">
+        <button class="cp-hbtn" title="Expand">⤢</button>
+        <button class="cp-hbtn" onclick="toggleCopilot()" title="Close">×</button>
+      </div>
+    </div>
+    <div class="cp-messages" id="cp-msgs">
+      <div class="cp-msg cp-msg-ai">Hi! I'm your <strong>Portfolio Copilot</strong>. Ask me anything about your accounts, contacts, or GTM signals. For example: <em>'Which accounts are at high risk?'</em> or <em>'Who should I reach out to today?'</em></div>
+    </div>
+    <div class="cp-input-row">
+      <input class="cp-input" id="cp-input" type="text" placeholder="Ask about your portfolio..." onkeydown="if(event.key==='Enter')sendCopilot()">
+      <button class="cp-send" onclick="sendCopilot()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+    </div>
+    <div class="cp-powered">⚡ Powered by ScalientIQ AI Intelligence</div>
+    <button class="cp-start-btn" onclick="closePanel();showPage('accounts',document.getElementById('nav-accounts'))">Start Outreach</button>
+  </div>
+  <button class="copilot-bubble" onclick="toggleCopilot()">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  </button>
+</div>
+
+<script>
+// ── BOOT ─────────────────────────────────────────────────────
+document.getElementById('uname').textContent = DEMO_PERSONA.name;
+document.getElementById('urole').textContent = DEMO_PERSONA.role;
+document.getElementById('uav').textContent   = DEMO_PERSONA.initials;
+document.getElementById('ai-text').textContent = AI_INSIGHT;
+
+// ── HELPERS ──────────────────────────────────────────────────
+const sc = n => n>=80?'sg':n>=65?'sa':'sr';
+const nc = n => n<=30?'sg':n<=55?'sa so':'sr';
+const ec = n => n>=70?'sg':n>=50?'sa':'sr';
+const initials = s => s.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+const avatarColor = (i) => ['#2563eb','#7c3aed','#0891b2','#059669','#dc2626','#ea580c','#6d28d9','#0f766e'][i%8];
+
+function personaTag(p){
+  const m={'Economic Buyer':'tb-','Champion':'tp','Technical Buyer':'tt','Influencer':'tg'};
+  return `<span class="tag ${m[p]||'tgr'}">${p}</span>`;
+}
+function outcomeTag(o){
+  const m={'Meeting Booked':'tb-','Pending':'tam','No Response':'trd','Replied':'tg'};
+  return `<span class="tag ${m[o]||'tgr'}">${o}</span>`;
+}
+function nextActionCell(a){
+  const icons={Sequence:`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,Call:`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.7 3.4 2 2 0 0 1 3.68 1.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`,'Intro Email':`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`};
+  return `<div class="nac"><div class="nai">${icons[a]||''}</div>${a}</div>`;
+}
+function ihStatusClass(s){
+  const m={Opened:'ih-opened',Replied:'ih-replied',Accepted:'ih-accepted',Completed:'ih-completed','No Response':'ih-noresp',Pending:'ih-pending',Open:'ih-open'};
+  return m[s]||'ih-pending';
+}
+function ihTypeIcon(t){
+  if(t==='Email') return `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`;
+  if(t==='LinkedIn') return `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>`;
+  if(t==='Meeting') return `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
+  return `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+}
+
+// ── THINKING ANIMATION ────────────────────────────────────────
+function thinkThenShow(el, content, delay=1100){
+  el.innerHTML=`<div class="thinking"><span class="td-label">AI analyzing</span><span class="tdot-ani"></span><span class="tdot-ani"></span><span class="tdot-ani"></span></div>`;
+  setTimeout(()=>{ el.innerHTML=content; },delay);
+}
+function typeText(el, text, speed=18){
+  el.textContent='';
+  let i=0;
+  const t=setInterval(()=>{
+    el.textContent+=text[i++];
+    if(i>=text.length) clearInterval(t);
+  },speed);
+}
+
+// ── METRICS ──────────────────────────────────────────────────
+(()=>{
+  const highSig=ACCOUNTS.filter(a=>a.signalStrength>=80).length;
+  const avgNrr=(ACCOUNTS.reduce((s,a)=>s+a.nrrRisk,0)/ACCOUNTS.length).toFixed(1);
+  const highEng=CONTACTS.filter(c=>c.engagement>=70).length;
+  const svgs={
+    chart:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
+    people:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+    shield:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+    bolt:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+    target:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+    cal:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`
+  };
+  const mbInit=CONTACTS.filter(c=>c.outcome==='Meeting Booked').length;
+  document.getElementById('metrics-row').innerHTML=[
+    {label:'Total Accounts',value:ACCOUNTS.length,icon:'chart',ic:'ic-blue'},
+    {label:'Total Contacts',value:CONTACTS.length,icon:'people',ic:'ic-indigo'},
+    {label:'Avg NRR Risk',value:avgNrr,icon:'shield',ic:'ic-amber'},
+    {label:'High Signal Accounts',value:highSig,icon:'bolt',ic:'ic-green'},
+    {label:'High Engagement',value:highEng,icon:'target',ic:'ic-purple'},
+  ].map(c=>`<div class="mc"><div class="mc-icon ${c.ic}">${svgs[c.icon]}</div><div class="mc-label">${c.label}</div><div class="mc-value">${c.value}</div></div>`).join('')
+  +`<div class="mc mc-live"><div class="mc-icon ic-teal">${svgs.cal}</div><div class="mc-live-badge"><div class="live-dot"></div>LIVE</div><div class="mc-label">Meetings Booked</div><div class="mc-value" id="metric-meetings">${mbInit}</div></div>`;
+})();
+
+// ── PRIORITY TABLE ────────────────────────────────────────────
+(()=>{
+  document.getElementById('ptbody').innerHTML=[...ACCOUNTS].sort((a,b)=>b.signalStrength-a.signalStrength).slice(0,5).map((a,i)=>{
+    const ai=ACCOUNTS.indexOf(a);
+    return`<tr onclick="openAccountPanel(${ai})"><td><div class="cn">${a.name}</div><div style="font-size:11px;color:#9ca3af;margin-top:2px;">${a.expansionSignal}</div></td><td><span class="sb ${sc(a.signalStrength)}">${a.signalStrength}</span></td><td><span class="sb ${nc(a.nrrRisk)}">${a.nrrRisk}</span></td><td><span class="tag tb-" style="font-size:11px;">${a.expansionSignal}</span></td><td><button class="act-btn" onclick="event.stopPropagation();openAccountPanel(${ai})">Action</button></td></tr>`;
+  }).join('');
+})();
+
+// ── WEBSITE VISITORS TABLE (Leadpipe) ─────────────────────────
+(()=>{
+  const wiClass={High:'wi-high',Medium:'wi-medium',Low:'wi-low'};
+  const wiIcon={High:'🔥',Medium:'⚡',Low:'👁'};
+  const tbody=document.getElementById('wv-tbody');
+  if(!tbody)return;
+  tbody.innerHTML=WEBSITE_VISITORS.map(v=>{
+    const pagePills=(v.pages||[]).map(p=>{const slug=p.replace('/','');const cls={solutions:'pp-solutions',pricing:'pp-pricing','case-studies':'pp-casestudies',home:'pp-home'}[slug]||'pp-other';return`<span class="page-pill ${cls}">${p}</span>`;}).join('');
+    const wc=wiClass[v.intentLevel]||'wi-none';const wi=wiIcon[v.intentLevel]||'—';
+    return`<tr style="cursor:pointer;" onclick="alert('Open Leadpipe to view full profile for ${v.name} at ${v.company}.')">
+      <td><div style="display:flex;align-items:center;gap:10px;"><div class="wv-av" style="background:${v.avatarColor}">${v.avatar}</div><div><div style="font-weight:700;color:#111827;">${v.name}</div><div style="font-size:11px;color:#9ca3af;">${v.title||'Unknown Title'}</div></div></div></td>
+      <td style="font-weight:600;color:#374151;">${v.company}</td>
+      <td><span class="wi ${wc}">${v.intentLevel==='None'||!v.intentLevel?'—':`${wi} ${v.intentLevel}`}</span></td>
+      <td>${pagePills||'<span style="color:#9ca3af;font-size:12px;">—</span>'}</td>
+      <td style="color:#374151;font-size:13px;">${v.sessions}</td>
+      <td style="color:#6b7280;font-size:12px;">${v.lastSeen||'—'}</td>
+      <td><button class="add-crm-btn" onclick="event.stopPropagation();alert('To add ${v.name} to your CRM: export from Leadpipe and paste into ACCOUNTS config at top of this file.')">+ CRM</button></td>
+    </tr>`;
+  }).join('');
+})();
+
+// ── ACCOUNTS TABLE ────────────────────────────────────────────
+function renderAccTable(data){
+  document.getElementById('acc-tbody').innerHTML=data.map(a=>{
+    const i=ACCOUNTS.indexOf(a);
+    const wi=a.webIntent||{level:"None"};const wiClass={High:'wi-high',Medium:'wi-medium',Low:'wi-low',None:'wi-none'}[wi.level]||'wi-none';const wiIcon={High:'🔥',Medium:'⚡',Low:'👁',None:'—'}[wi.level]||'—';
+    return`<tr onclick="openAccountPanel(${i})"><td><div class="cn">${a.name}</div><div style="font-size:11px;color:#9ca3af;margin-top:2px;">${a.employees} • ${a.acv}</div></td><td>${a.industry}</td><td><span class="sb ${sc(a.signalStrength)}">${a.signalStrength}</span></td><td><span class="sb ${nc(a.nrrRisk)}">${a.nrrRisk}</span></td><td><span class="tag tb-" style="font-size:11px;">${a.expansionSignal}</span></td><td><span class="wi ${wiClass}">${wi.level==='None'?'—':`${wiIcon} ${wi.level}`}</span></td><td style="color:#6b7280;font-size:12px;">${a.lastSalesTouch}</td><td style="font-size:12px;">${a.salesOwner}</td><td><button class="tdot" onclick="event.stopPropagation()">⋯</button></td></tr>`;
+  }).join('');
+}
+function filterAcc(q){const f=q.toLowerCase();renderAccTable(ACCOUNTS.filter(a=>a.name.toLowerCase().includes(f)||a.industry.toLowerCase().includes(f)));}
+function filterAccInd(v){renderAccTable(v?ACCOUNTS.filter(a=>a.industry===v):ACCOUNTS);}
+(()=>{
+  const sel=document.getElementById('ind-filter');
+  [...new Set(ACCOUNTS.map(a=>a.industry))].sort().forEach(ind=>{const o=document.createElement('option');o.value=o.textContent=ind;sel.appendChild(o);});
+  renderAccTable(ACCOUNTS);
+})();
+
+// ── CONTACTS TABLE ─────────────────────────────────────────
+function renderConTable(data){
+  document.getElementById('con-tbody').innerHTML=data.map(c=>{
+    const i=CONTACTS.indexOf(c);
+    return`<tr onclick="openContactPanel(${i})"><td><div class="cn">${c.name}</div><div class="ct">${c.title}</div></td><td style="font-size:13px;">${c.account}</td><td>${personaTag(c.persona)}</td><td><span class="sb ${sc(c.signalScore)}">${c.signalScore}</span></td><td><span class="sb ${ec(c.engagement)}">${c.engagement}</span></td><td>${nextActionCell(c.nextAction)}</td><td>${outcomeTag(c.outcome)}</td><td><button class="tdot" onclick="event.stopPropagation()">⋯</button></td></tr>`;
+  }).join('');
+}
+function filterCon(q){const f=q.toLowerCase();renderConTable(CONTACTS.filter(c=>c.name.toLowerCase().includes(f)||c.account.toLowerCase().includes(f)||c.title.toLowerCase().includes(f)));}
+function filterConOut(v){renderConTable(v?CONTACTS.filter(c=>c.outcome===v):CONTACTS);}
+renderConTable(CONTACTS);
+
+// ── PLAYS ─────────────────────────────────────────────────────
+document.getElementById('plays-grid').innerHTML=PLAYS.map(p=>`
+  <div class="play-card"><div class="pc-top"><div class="pc-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><span class="active-badge">${p.status.toUpperCase()}</span></div>
+  <div class="pc-title">${p.name}</div><div class="pc-desc">${p.desc}</div>
+  <div class="pm-label">When to Use</div><div class="pm-val">${p.whenToUse}</div>
+  <div class="pm-label">Target Personas</div><div class="pp">${p.personas.map(x=>personaTag(x)).join('')}</div>
+  <div class="pm-label">Message Snippet</div><div class="psnip">${p.snippet}</div>
+  <div class="pc-foot"><div class="pgoal"><strong>Goal:</strong> ${p.goal}</div><div class="ep">Edit Play →</div></div></div>`).join('');
+
+// ── DEMO SCRIPT ───────────────────────────────────────────────
+document.getElementById('script-body').innerHTML=[
+  {h:"Opening Hook",b:`"${DEMO_CLIENT} is one of the most signal-rich accounts in your book right now. Let me show you why."`},
+  {h:"Signal Walkthrough",b:"Navigate to Accounts → sort by Signal Strength. Walk through Cascade AI (91) and TrueRoute (88) — both new CFO signals, both in expansion motion."},
+  {h:"Contact Intelligence",b:"Jump to Contacts. Show Franklin Rios (94 signal) and Parker Cruz (93 signal). CEO and CEO both actively evaluating. These are warm, not cold."},
+  {h:"Click Into an Account",b:"Click TrueRoute row. Show the account panel — signal quote, why flagged, key contacts. Then click Start Outreach to show the AI-generated message."},
+  {h:"Recommended Play",b:"Open Sequences & Plays. Pull up the CFO New-in-Role Sequence. Show the message snippet — already personalized with signal data."},
+  {h:"Churn Flag",b:"Back to Accounts. Note FlowStack AI — NRR Risk 80 (red). Click it. Show the churn signals. Route to CS immediately."},
+  {h:"Closing",b:`"This is what Scalient IQ does — it tells you exactly who to call, why today, and what to say. No spreadsheet. No guessing."`},
+].map((item,i)=>`<div style="border:1px solid #e5e7eb;border-radius:10px;padding:16px 18px;"><div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:#2563eb;margin-bottom:6px;">Step ${i+1} — ${item.h}</div><div style="font-size:14px;color:#374151;line-height:1.6;">${item.b}</div></div>`).join('');
+
+// ── CHARTS ────────────────────────────────────────────────────
+let chartsInit=false;
+function initCharts(){
+  if(chartsInit)return; chartsInit=true;
+  const sn=n=>n.length>12?n.substring(0,12)+'…':n;
+  const labels=ACCOUNTS.map(a=>sn(a.name));
+  new Chart(document.getElementById('chartBar').getContext('2d'),{type:'bar',data:{labels,datasets:[{data:ACCOUNTS.map(a=>a.signalStrength),backgroundColor:'rgba(99,102,241,0.75)',borderColor:'rgba(99,102,241,1)',borderWidth:1,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:9},color:'#9ca3af'},grid:{display:false}},y:{min:0,max:100,ticks:{font:{size:9},color:'#9ca3af'},grid:{color:'#f1f5f9'}}}}});
+  new Chart(document.getElementById('chartLine').getContext('2d'),{type:'line',data:{labels,datasets:[{data:ACCOUNTS.map(a=>a.nrrRisk),borderColor:'#f97316',backgroundColor:'rgba(249,115,22,0.08)',pointBackgroundColor:'#f97316',pointRadius:5,tension:0.3,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:9},color:'#9ca3af'},grid:{display:false}},y:{min:0,max:100,ticks:{font:{size:9},color:'#9ca3af'},grid:{color:'#f1f5f9'}}}}});
+  new Chart(document.getElementById('chartScatter').getContext('2d'),{type:'scatter',data:{datasets:[{data:CONTACTS.map(c=>({x:c.signalScore,y:c.engagement})),backgroundColor:'rgba(124,58,237,0.7)',pointRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{min:40,max:100,ticks:{font:{size:9},color:'#9ca3af'},grid:{color:'#f1f5f9'}},y:{min:0,max:100,ticks:{font:{size:9},color:'#9ca3af'},grid:{color:'#f1f5f9'}}}}});
+  const outs=CONTACTS.reduce((acc,c)=>{acc[c.outcome]=(acc[c.outcome]||0)+1;return acc;},{});
+  const ol=Object.keys(outs),oc={'Meeting Booked':'#3b82f6','No Response':'#ef4444','Pending':'#f97316','Replied':'#22c55e'};
+  if(donutChart)donutChart.destroy();
+  donutChart=new Chart(document.getElementById('chartDonut').getContext('2d'),{type:'doughnut',data:{labels:ol,datasets:[{data:ol.map(l=>outs[l]),backgroundColor:ol.map(l=>oc[l]||'#94a3b8'),borderWidth:2,borderColor:'white',hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false}}}});
+  document.getElementById('donut-leg').innerHTML=ol.map(l=>`<div class="li"><div class="ld" style="background:${oc[l]||'#94a3b8'}"></div>${l}</div>`).join('');
+  chartsInit=false; // allow re-init after outcome updates so bar/line stay fresh
+}
+
+// ── NAV ───────────────────────────────────────────────────────
+function showPage(name,navEl){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  if(navEl)navEl.classList.add('active');
+  document.getElementById('page-'+name).classList.add('active');
+  if(name==='dashboard')initCharts();
+  closePanel();
+}
+
+// ── OUTCOME UPDATE (live CRM-like state) ─────────────────────
+let donutChart=null; // hold reference so we can destroy + re-init
+function updateOutcome(i,outcome){
+  CONTACTS[i].outcome=outcome;
+  // Re-render contacts table
+  renderConTable(CONTACTS);
+  // Re-render donut chart
+  const outs=CONTACTS.reduce((acc,c)=>{acc[c.outcome]=(acc[c.outcome]||0)+1;return acc;},{});
+  const ol=Object.keys(outs),oc={'Meeting Booked':'#3b82f6','No Response':'#ef4444','Pending':'#f97316','Replied':'#22c55e'};
+  if(donutChart)donutChart.destroy();
+  donutChart=new Chart(document.getElementById('chartDonut').getContext('2d'),{type:'doughnut',data:{labels:ol,datasets:[{data:ol.map(l=>outs[l]),backgroundColor:ol.map(l=>oc[l]||'#94a3b8'),borderWidth:2,borderColor:'white',hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false}}}});
+  document.getElementById('donut-leg').innerHTML=ol.map(l=>`<div class="li"><div class="ld" style="background:${oc[l]||'#94a3b8'}"></div>${l}</div>`).join('');
+  // Re-render metric card for meetings booked
+  const mbCount=CONTACTS.filter(c=>c.outcome==='Meeting Booked').length;
+  const mbEl=document.getElementById('metric-meetings');
+  if(mbEl){mbEl.textContent=mbCount;mbEl.classList.add('metric-flash');setTimeout(()=>mbEl.classList.remove('metric-flash'),800);}
+  const icons={'Meeting Booked':'📅','Pending':'⏱','Replied':'↩','No Response':'✕'};
+  showToast(`${icons[outcome]||'✓'} ${CONTACTS[i].name} — ${outcome}`,'#2563eb');
+  // Re-open panel to reflect updated button state
+  openContactPanel(i);
+}
+
+// ── TOAST ─────────────────────────────────────────────────────
+function showToast(msg,color){
+  let t=document.getElementById('toast-bar');
+  if(!t){t=document.createElement('div');t.id='toast-bar';t.style.cssText='position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#0f172a;color:white;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.25);transition:opacity 0.3s;pointer-events:none;display:flex;align-items:center;gap:8px;';document.body.appendChild(t);}
+  t.innerHTML=`<div style="width:8px;height:8px;border-radius:50%;background:${color||'#22c55e'};flex-shrink:0"></div>${msg}`;
+  t.style.opacity='1';
+  clearTimeout(t._to);
+  t._to=setTimeout(()=>{t.style.opacity='0';},2500);
+}
+
+// ── PANEL OPEN/CLOSE ─────────────────────────────────────────
+function openPanel(){
+  document.getElementById('side-panel').classList.add('open');
+  document.getElementById('main-content').classList.add('blurred');
+  document.getElementById('pbd').style.display='block';
+}
+function closePanel(){
+  document.getElementById('side-panel').classList.remove('open');
+  document.getElementById('main-content').classList.remove('blurred');
+  document.getElementById('pbd').style.display='none';
+}
+
+// ── ACCOUNT PANEL ────────────────────────────────────────────
+function openAccountPanel(i){
+  const a=ACCOUNTS[i];
+  const contacts=CONTACTS.filter(c=>c.account===a.name);
+  const spb=document.getElementById('sp-body');
+
+  spb.innerHTML=`
+    <div class="sp-top">
+      <div class="sp-avatar" style="background:${a.color}">${a.name[0]}</div>
+      <div>
+        <div class="sp-name">${a.name}</div>
+        <div class="sp-sub">${a.industry} • ${a.employees} employees</div>
+      </div>
+    </div>
+    <div class="score-pair">
+      <div class="score-box"><div class="score-box-label">Signal Strength</div><div class="score-box-val"><div class="score-box-big">${a.signalStrength}</div><span class="sb ${sc(a.signalStrength)}">${a.signalStrength}</span></div></div>
+      <div class="score-box"><div class="score-box-label">NRR Risk</div><div class="score-box-val"><div class="score-box-big">${a.nrrRisk}</div><span class="sb ${nc(a.nrrRisk)}">${a.nrrRisk}</span></div></div>
+    </div>
+    <div class="sp-section">
+      <div class="sp-section-title">Primary Signal <span class="ai-insight-tag">⚡ AI INSIGHT</span></div>
+      <div id="ai-signal-section"></div>
+    </div>
+    ${(()=>{const wi=a.webIntent||{level:'None',pages:[],sessions:0,lastSeen:null,source:null,keySignal:'No website activity detected'};const wiClass={High:'wi-high',Medium:'wi-medium',Low:'wi-low',None:'wi-none'}[wi.level]||'wi-none';const wiIcon={High:'🔥',Medium:'⚡',Low:'👁',None:'—'}[wi.level]||'—';const pagePills=(wi.pages||[]).map(p=>{const slug=p.replace('/','');const cls={solutions:'pp-solutions',pricing:'pp-pricing','case-studies':'pp-casestudies',home:'pp-home'}[slug]||'pp-other';return`<span class="page-pill ${cls}">${p}</span>`;}).join('');return`<div class="sp-section"><div class="sp-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Digital Footprint <span class="lp-badge">📡 Leadpipe</span></div><div class="df-card"><div class="df-header"><div class="df-header-title">Web Intent Signal <span class="wi ${wiClass}" style="margin-left:4px">${wi.level==='None'?'No Activity':`${wiIcon} ${wi.level}`}</span></div>${wi.lastSeen?`<span style="font-size:11px;color:#9ca3af;">Last seen ${wi.lastSeen}</span>`:''}</div><div class="df-body"><div class="df-row"><span class="df-label">Sessions</span><span class="df-val">${wi.sessions||0} visits</span></div><div class="df-row"><span class="df-label">Source</span><span class="df-val">${wi.source||'—'}</span></div>${pagePills?`<div><span class="df-label" style="display:block;margin-bottom:4px;">Pages Visited</span>${pagePills}</div>`:''}<div class="df-insight">💡 ${wi.keySignal}</div></div></div></div>`;})()}
+    <div class="sp-section">
+      <div class="sp-section-title">Key Contacts (${contacts.length})</div>
+      ${contacts.map(c=>{const ci=CONTACTS.indexOf(c);return`<div class="contact-mini" onclick="openContactPanel(${ci})"><div class="cm-av" style="background:${avatarColor(ci)}">${initials(c.name)}</div><div><div class="cm-name">${c.name}</div><div class="cm-title">${c.title}</div></div><div style="margin-left:auto;text-align:right"><div class="cm-score-label">SIGNAL</div><div class="cm-score" style="color:${c.signalScore>=80?'#16a34a':c.signalScore>=65?'#ca8a04':'#dc2626'}">${c.signalScore}</div></div></div>`;}).join('')}
+    </div>
+    <button class="sp-outreach-btn" onclick="openOutreachModal(${i})">Start Outreach</button>
+  `;
+
+  const aiSection=document.getElementById('ai-signal-section');
+  thinkThenShow(aiSection,`
+    <div class="signal-quote">${a.signalQuote}</div>
+    <div style="margin-top:12px"><div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px;">Why flagged?</div>
+    <div class="why-list">${a.whyFlagged.map(w=>`<div class="why-item"><div class="why-dot"></div>${w}</div>`).join('')}</div></div>
+  `);
+
+  openPanel();
+}
+
+// ── CONTACT PANEL ────────────────────────────────────────────
+function openContactPanel(i){
+  const c=CONTACTS[i];
+  const spb=document.getElementById('sp-body');
+
+  spb.innerHTML=`
+    <div class="sp-top">
+      <div class="sp-avatar" style="background:${avatarColor(i)}">${initials(c.name)}</div>
+      <div>
+        <div class="sp-name">${c.name}</div>
+        <div class="sp-sub">${c.title} @ <span class="sp-company">${c.account}</span></div>
+      </div>
+    </div>
+    <div class="score-pair">
+      <div class="score-box"><div class="score-box-label">Signal Score</div><div class="score-box-val"><div class="score-box-big">${c.signalScore}</div><span class="sb ${sc(c.signalScore)}">${c.signalScore}</span></div></div>
+      <div class="score-box"><div class="score-box-label">Engagement</div><div class="score-box-val"><div class="score-box-big">${c.engagement}</div><span class="sb ${ec(c.engagement)}">${c.engagement}</span></div></div>
+    </div>
+    <div class="sp-section">
+      <div class="sp-section-title">Why these scores? <span class="ai-insight-tag">⚡ AI INSIGHT</span></div>
+      <div id="ai-why-section"></div>
+    </div>
+    <div class="sp-section">
+      <div class="sp-section-title">Interaction History</div>
+      <div class="why-list" style="gap:0">
+        ${c.history.map(h=>`<div class="ih-item"><div class="ih-icon">${ihTypeIcon(h.type)}</div><div class="ih-content"><div class="ih-head"><span class="ih-type">${h.type}</span><span class="ih-date">${h.date}</span></div><div class="ih-desc">${h.desc}</div><span class="ih-status ${ihStatusClass(h.status)}">${h.status}</span></div></div>`).join('')}
+      </div>
+    </div>
+    <div class="sp-section">
+      <div class="sp-section-title">Recommended Outreach</div>
+      <div class="email-box">
+        <div class="email-box-header"><div class="email-hdr-left"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Suggested Email Template</div><span class="seq-badge">SEQUENCE</span></div>
+        <div class="email-field"><div class="email-field-label">Subject</div><div class="email-field-val">${c.emailSubject}</div></div>
+        <div class="email-divider"></div>
+        <div class="email-field"><div class="email-field-label">Message</div><div class="email-body-val" id="email-body-${i}"></div></div>
+      </div>
+    </div>
+    <div class="action-btns">
+      <button class="ab ab-pending" onclick="updateOutcome(${i},'Pending')">⏱ Mark Pending</button>
+      <button class="ab ab-book" onclick="updateOutcome(${i},'Meeting Booked')">📅 Book Meeting</button>
+      <button class="ab ab-replied" onclick="updateOutcome(${i},'Replied')">↩ Mark Replied</button>
+      <button class="ab ab-noresp" onclick="updateOutcome(${i},'No Response')">✕ No Response</button>
+    </div>
+  `;
+
+  const aiWhy=document.getElementById('ai-why-section');
+  thinkThenShow(aiWhy,`<div class="why-list">${c.whyScores.map(w=>`<div class="why-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>${w}</div>`).join('')}</div>`,1000);
+
+  // Type out email body after panel loads
+  setTimeout(()=>{
+    const emailEl=document.getElementById(`email-body-${i}`);
+    if(emailEl) typeText(emailEl,c.emailBody,12);
+  },1400);
+
+  openPanel();
+}
+
+// ── OUTREACH MODAL ───────────────────────────────────────────
+function openOutreachModal(i){
+  const a=ACCOUNTS[i];
+  const mb=document.getElementById('modal-box');
+  mb.innerHTML=`
+    <div class="modal-title">Start Outreach: ${a.name}</div>
+    <div class="modal-sub">Recommended sequence based on primary signal: <a href="#">${a.expansionSignal}</a></div>
+    <div class="modal-section"><div class="modal-section-label">Recommended Play</div><div class="modal-section-val">${a.recommendedPlay}</div></div>
+    <div class="modal-section-label" style="margin-bottom:6px;">AI-Generated Message</div>
+    <div class="modal-ai-box"><div class="modal-ai-text" id="modal-ai-text"></div></div>
+    <div class="modal-btns">
+      <button class="modal-btn-send" onclick="closeModal()">Mark as Sent</button>
+      <button class="modal-btn-cancel" onclick="closeModal()">Cancel</button>
+    </div>
+  `;
+  document.getElementById('modal-bd').classList.add('open');
+  setTimeout(()=>{
+    const el=document.getElementById('modal-ai-text');
+    if(el) typeText(el,a.aiMessage,14);
+  },400);
+}
+function closeModal(){document.getElementById('modal-bd').classList.remove('open');}
+
+// ── PORTFOLIO COPILOT ────────────────────────────────────────
+function toggleCopilot(){
+  const p=document.getElementById('copilot-panel');
+  p.classList.toggle('open');
+}
+function addCopilotMsg(text,isUser){
+  const msgs=document.getElementById('cp-msgs');
+  const div=document.createElement('div');
+  div.className='cp-msg '+(isUser?'cp-msg-user':'cp-msg-ai');
+  div.textContent=text;
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+function addCopilotThinking(){
+  const msgs=document.getElementById('cp-msgs');
+  const div=document.createElement('div');
+  div.className='cp-msg cp-msg-ai';
+  div.id='cp-thinking';
+  div.innerHTML='<span class="tdot-ani"></span><span class="tdot-ani"></span><span class="tdot-ani"></span>';
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+  return div;
+}
+function copilotRespond(q){
+  const thinking=addCopilotThinking();
+  const q2=q.toLowerCase();
+  let response='';
+  if(q2.includes('high risk')||q2.includes('at risk')||q2.includes('churn')){
+    const risky=ACCOUNTS.filter(a=>a.nrrRisk>50).sort((a,b)=>b.nrrRisk-a.nrrRisk);
+    response=`High NRR Risk accounts (${risky.length}): ${risky.map(a=>`${a.name} (risk: ${a.nrrRisk})`).join(', ')}. FlowStack AI is the most urgent — CTO asking about renewal concessions.`;
+  } else if(q2.includes('reach out')||q2.includes('today')||q2.includes('who should')){
+    const top=CONTACTS.filter(c=>c.outcome==='Pending').sort((a,b)=>b.signalScore-a.signalScore).slice(0,3);
+    response=`Top 3 contacts to reach today: ${top.map(c=>`${c.name} at ${c.account} (signal: ${c.signalScore})`).join('; ')}. Jordan Lee at Cascade AI is your highest priority — active pilot scope, CRO in role <45 days.`;
+  } else if(q2.includes('priority')||q2.includes('top account')){
+    const top=[...ACCOUNTS].sort((a,b)=>b.signalStrength-a.signalStrength).slice(0,3);
+    response=`Top 3 accounts by signal: ${top.map(a=>`${a.name} (${a.signalStrength})`).join(', ')}. Cascade AI and TrueRoute are in active expansion motion. Engage immediately.`;
+  } else if(q2.includes('email')||q2.includes('draft')||q2.includes('message')){
+    response=`Click any account row to open its detail panel, then hit "Start Outreach" — I'll generate a personalized AI message based on the account's live signal data. Every message is unique to the contact and trigger.`;
+  } else if(q2.includes('meeting')||q2.includes('booked')){
+    const booked=CONTACTS.filter(c=>c.outcome==='Meeting Booked');
+    response=`${booked.length} meetings booked: ${booked.map(c=>`${c.name} (${c.account})`).join(', ')}. Franklin Rios at Next Net and Jordan Lee at Cascade AI are your warmest. Prioritize follow-through.`;
+  } else if(q2.includes('signal')||q2.includes('score')){
+    const avg=Math.round(CONTACTS.reduce((s,c)=>s+c.signalScore,0)/CONTACTS.length);
+    response=`Average contact signal score is ${avg}. Your highest signal contacts are Franklin Rios (94), Parker Cruz (93), and Jordan Lee (91). All have active buying indicators.`;
+  } else if(q2.includes('web')||q2.includes('leadpipe')||q2.includes('visitor')||q2.includes('intent')||q2.includes('website')){
+    const highInt=ACCOUNTS.filter(a=>a.webIntent&&a.webIntent.level==='High');
+    const newVisitors=WEBSITE_VISITORS.filter(v=>v.intentLevel==='High'||v.intentLevel==='Medium');
+    response=`${highInt.length} existing accounts showing High web intent: ${highInt.map(a=>a.name).join(', ')}. On top of that, ${newVisitors.length} unidentified visitors from Leadpipe are showing Medium–High intent — including ${WEBSITE_VISITORS[0].name} at ${WEBSITE_VISITORS[0].company} and ${WEBSITE_VISITORS[4].name} at ${WEBSITE_VISITORS[4].company}. Check the Website Visitors section on this dashboard for details.`;
+  } else {
+    const responses=[
+      `Based on current signals, Cascade AI is your most time-sensitive opportunity — active pilot scope with a new CRO. I'd engage within 24 hours.`,
+      `Across your ${ACCOUNTS.length} accounts, ${ACCOUNTS.filter(a=>a.signalStrength>=80).length} are showing high signal strength (≥80). Focus energy on Cascade AI, TrueRoute, and Prism Revenue this week.`,
+      `FlowStack AI needs immediate attention — NRR risk score of 80 and a CTO asking about concessions. This is a save play, not an expansion play.`,
+      `Leadpipe is showing ${WEBSITE_VISITORS.filter(v=>v.intentLevel==='High').length} high-intent anonymous visitors on your website right now — including a CEO from Attracta visiting /pricing twice. These are net-new opportunities worth investigating.`,
+    ];
+    response=responses[Math.floor(Math.random()*responses.length)];
+  }
+  setTimeout(()=>{
+    thinking.remove();
+    addCopilotMsg(response,false);
+  },1200);
+}
+function sendCopilot(){
+  const inp=document.getElementById('cp-input');
+  const q=inp.value.trim();
+  if(!q)return;
+  addCopilotMsg(q,true);
+  inp.value='';
+  copilotRespond(q);
+}
+
+// ── REP TASK TOGGLE ───────────────────────────────────────────
+let taskDone=new Set([3,4]); // tasks 3 and 4 pre-completed
+function toggleTask(idx){
+  const item=document.getElementById('task-'+idx);
+  const chk=document.getElementById('task-check-'+idx);
+  if(!item||!chk)return;
+  if(taskDone.has(idx)){taskDone.delete(idx);chk.classList.remove('checked');chk.textContent='';item.classList.remove('done');}
+  else{taskDone.add(idx);chk.classList.add('checked');chk.textContent='✓';item.classList.add('done');}
+  const total=7,done=taskDone.size;
+  const lbl=document.getElementById('task-progress-label');
+  const bar=document.getElementById('task-progress-bar');
+  if(lbl)lbl.textContent=`${done} / ${total}`;
+  if(bar)bar.style.width=`${Math.round(done/total*100)}%`;
+  if(done===total)showToast('🎉 All tasks complete for today!','#22c55e');
+  else if(taskDone.has(idx))showToast('✓ Task marked complete','#2563eb');
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+initCharts();
+</script>
+</body>
+</html>
