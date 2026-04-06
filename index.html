@@ -185,6 +185,7 @@ html,body{height:100%;font-family:'Space Grotesk',-apple-system,BlinkMacSystemFo
 
 .page{display:none;color:var(--text-1);}
 .page.active{display:block;}
+#main>.page{margin-left:var(--sidebar-w);padding:36px 32px;overflow-y:auto;overflow-x:hidden;}
 /* Text for page-level content */
 .page-title{font-size:18px;font-weight:800;color:var(--text-1) !important;}
 .page-sub{font-size:14px;color:var(--text-3) !important;margin-top:3px;}
@@ -648,6 +649,7 @@ html,body{height:100%;font-family:'Space Grotesk',-apple-system,BlinkMacSystemFo
 /* ── TABLET (≤900px) ── */
 @media(max-width:900px){
   #canvas{padding:20px 18px;}
+  #main>.page{padding:20px 18px;}
   .kpi-bar{grid-template-columns:repeat(2,1fr);gap:12px;}
   .g-3{grid-template-columns:1fr 1fr;}
   .g-1-2{grid-template-columns:1fr;}
@@ -669,6 +671,7 @@ html,body{height:100%;font-family:'Space Grotesk',-apple-system,BlinkMacSystemFo
     padding-bottom:24px;
     margin-left:0 !important;
   }
+  #main>.page{margin-left:0 !important;padding:16px 14px;}
 
   /* Topbar */
   #topbar{padding:0 14px;gap:8px;margin-left:0 !important;}
@@ -726,6 +729,7 @@ html,body{height:100%;font-family:'Space Grotesk',-apple-system,BlinkMacSystemFo
   .kpi-bar{grid-template-columns:1fr;}
   .bnav-grid{grid-template-columns:1fr;}
   #canvas{padding:12px 10px;}
+  #main>.page{padding:12px 10px;}
 }
 
 /* ── ARIA CHATBOT ── */
@@ -1761,6 +1765,10 @@ const PAGE_SUBS={
 };
 
 function nav(page){
+  var __canvasPages={command:1,signals:1,sigmap:1,hot:1};
+  var __cv=document.getElementById("canvas");
+  if(__cv){__cv.style.display=__canvasPages[page]?"":"none";}
+
  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
  const el=document.getElementById('pg-'+page);
  if(el) el.classList.add('active');
