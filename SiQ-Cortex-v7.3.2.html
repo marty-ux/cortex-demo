@@ -172,6 +172,7 @@ html,body{height:100%;font-family:'Space Grotesk',-apple-system,BlinkMacSystemFo
 .topbar-chip.hot{color:var(--orange);background:var(--orange-dim);border-color:rgba(255,102,0,0.2);}
 
 /* ── PAGE CANVAS ── */
+#canvas:not(:has(.page.active)){display:none;}
 #canvas{
  flex:1;overflow-y:auto;overflow-x:hidden;
  background:var(--bg);
