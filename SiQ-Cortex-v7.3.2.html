@@ -1835,9 +1835,13 @@ function nav(page){
  var homePages=['command','tasks'];
  var backBtn=document.getElementById('topbar-back');
  if(backBtn) backBtn.style.display=homePages.includes(page)?'none':'flex';
- // Scroll canvas to top on navigation
+ // Show/hide canvas wrapper based on whether target page is inside it
  const canvas=document.getElementById('canvas');
- if(canvas) canvas.scrollTop=0;
+ if(canvas){
+  var canvasPages=['command','signals','sigmap','hot'];
+  canvas.style.display=canvasPages.includes(page)?'':'none';
+  canvas.scrollTop=0;
+ }
  renderPage(page);
 }
 
